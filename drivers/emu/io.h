@@ -3,7 +3,8 @@
 #define UART_SYS_SLEEP 0x40000004
 
 void uart_char(char c);
-void uart_dbg(char *string);
+void uart_str(char *string);
+void uart_log(char *format, ...);
 
 #define SCREEN_BUFFER 0x40000100
 
@@ -11,4 +12,8 @@ void uart_dbg(char *string);
 #define SCREEN_HEIGHT 480
 
 void sys_exit();
+void sys_dump();
 void msleep(int ms);
+// void sys_init_bmp()
+
+#define MEM_ALLOC_START 0x40000008

@@ -2,7 +2,7 @@ test: os.bin
 	@cd emulator; $(MAKE)
 	emulator/emulator.o
 
-ARMCFLAGS=-c -fpack-struct -fpic -mcpu=cortex-a7 -fno-builtin -Idrivers/emu
+ARMCFLAGS=-c -fpic -mcpu=cortex-a7 -fno-builtin -Idrivers/emu -Icore/
 ARMCC?=arm-none-eabi
 ARMLDFLAGS=-Bstatic -T Linker.ld
 
@@ -13,9 +13,16 @@ ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/7.3.1/
 ARMLDFLAGS+=-lc -lgcc
 
 FILES=core/boot.o core/main.o core/asm.o drivers/emu/mem.o drivers/emu/sys.o drivers/emu/bmp.o
-FILES+=core/bmp.o
+FILES+=core/bmp.o drivers/emu/io.o
+
+# mJS support
+FILES+=mjs/mjs.o
+ARMCFLAGS+=-I. -include platform_custom.h -Imjs/ -Imjs/src -g
+mjs/mjs.o: ARMCFLAGS+=
 
 EXTERN_DEPS=Makefile
+
+core/main.o: js.h
 
 os.bin: $(FILES)
 	$(ARMCC)-ld $(FILES) $(ARMLDFLAGS) -o os.elf
@@ -36,5 +43,8 @@ RFLAGS=-C opt-level=2 --target $(RARCH) --emit obj --crate-type rlib
 %.o: %.rs $(EXTERN_DEPS) $(wildcard *.rs)
 	$(RUSTC) $(RFLAGS) $< -o $@
 
+js.h: core/test.js
+	xxd -i core/test.js > js.h
+
 clean:
-	$(RM) core/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin
+	$(RM) core/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin js.h

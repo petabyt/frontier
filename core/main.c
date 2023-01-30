@@ -1,19 +1,36 @@
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
-
 #include <io.h>
 #include <bmp.h>
+#include <mjs.h>
+
+#include "../js.h"
+
+void mem_init();
+
+void foo() {
+	printf("Testing\n");
+}
+
+void *mdlsym(void *handle, const char *name) {
+	if (!strcmp(name, "foo")) return foo;
+	if (!strcmp(name, "printf")) return printf;
+	if (!strcmp(name, "uart_str")) return uart_str;
+	return NULL;
+}
 
 int entry() {
-	uart_dbg("Drawing...");
-	bmp_clear(0x404a6e);
-	bmp_fill_rect(10, 10, SCREEN_WIDTH - 20, 300, 0x1c202e);
-	font_print_string(15, 15, "Hello from the custom emulator");
-	font_print_string(15, 20+7+4, "Testing");
-	bmp_apply();
-	uart_dbg("Done...");
-	msleep(1000);
+	mem_init();
+
+	core_test_js[core_test_js_len - 1] = '\0';
+
+	struct mjs *mjs = mjs_create();
+	mjs_set_ffi_resolver(mjs, mdlsym);
+	mjs_err_t err = mjs_exec(mjs, core_test_js, NULL);
+	printf("Result: %s\n", mjs_strerror(mjs, err));
+
 	sys_exit();
 	return 0;
 }

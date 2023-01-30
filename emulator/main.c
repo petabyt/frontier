@@ -4,21 +4,59 @@
 #define CNFG_IMPLEMENTATION
 #include "rawdraw_sf.h"
 
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+
+#define STACK_SIZE 1000000
+
+#define RAM (16 * 1024 * 1024)
+#define ADDRESS 0x0
+
+uint32_t *screen;
+uint32_t alloc_start = 0;
+
 void HandleKey( int keycode, int bDown ) { }
 void HandleButton( int x, int y, int button, int bDown ) { }
 void HandleMotion( int x, int y, int mask ) { }
 void HandleDestroy() { }
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+void barf(uc_engine *uc) {
+	int reg;
 
-#define SCREEN_OF 0x100
+	uc_reg_read(uc, UC_ARM_REG_PC, &reg);
+	printf("PC: %08X\n", reg);
+	char buffer[128];
+	sprintf(buffer, "arm-none-eabi-addr2line -e %s %X", "os.elf", (uint32_t)reg);
+	system(buffer);
 
-uint32_t *screen;
+	puts("from");
+
+	uc_reg_read(uc, UC_ARM_REG_LR, &reg);
+	sprintf(buffer, "arm-none-eabi-addr2line -e %s %X", "os.elf", (uint32_t)reg);
+	system(buffer);
+
+	for (int i = 0; i < 10; i++) {
+		uc_reg_read(uc, UC_ARM_REG_R0 + i, &reg);
+		printf("r%d: 0x%X\n", i, reg);
+	}
+
+	void *buf = malloc(RAM);
+	uc_mem_read(uc, 0, buf, RAM);
+	FILE *f = fopen("dump", "w");
+	fwrite(buf, 1, RAM, f);
+	fclose(f);
+}
 
 static uint64_t mmio_reads(uc_engine *uc, uint64_t offset, unsigned size, void *user_data) {
+	switch (offset) {
+	case 8:
+		return alloc_start;
+	}
+
 	return 0x0;
 }
+
+#define SCREEN_OF 0x100
 
 static void mmio_writes(uc_engine *uc, uint64_t offset, unsigned size, uint64_t value, void *user_data) {
 	if (offset >= SCREEN_OF && offset <= SCREEN_OF + (SCREEN_WIDTH * SCREEN_HEIGHT * 4)) {
@@ -27,6 +65,7 @@ static void mmio_writes(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
 	}
 
 	switch (offset) {
+	// General purpose sys call
 	case 0:
 		if (value == 0) {
 			uc_close(uc);
@@ -34,6 +73,12 @@ static void mmio_writes(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
 		} else if (value == 1) {
 			CNFGBlitImage(screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			CNFGSwapBuffers();
+		} else if (value == 2) {
+			barf(uc);
+		} else if (value == 3) {
+			// Setup up the screen
+			screen = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+			CNFGSetup("Rigged Emulator", SCREEN_WIDTH, SCREEN_HEIGHT);
 		}
 	case 1:
 		printf("%c", (char)value);
@@ -43,9 +88,6 @@ static void mmio_writes(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
 		return;
 	}
 }
-
-#define RAM (2 * 1024 * 1024)
-#define ADDRESS 0x0
 
 int main(int argc, char *argv[]) {
 	char *filename = "os.bin";
@@ -82,22 +124,21 @@ int main(int argc, char *argv[]) {
 	free(buffer);
 
 	// 100k of stack (grows backwards)
-	int reg = length + 100000;
+	int reg = length + STACK_SIZE;
 	uc_reg_write(uc, UC_ARM_REG_SP, &reg);
+
+	alloc_start = STACK_SIZE + length + 64;
 
 	// Set up IO regions
 	uc_mmio_map(uc, 0x40000000, 0x10000000, mmio_reads, NULL,
 		mmio_writes, NULL);
 
-	// Setup up the screen
-	screen = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
-	CNFGSetup("Rigged Emulator", SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	uc_emu_start(uc, 0, RAM, 0, 0);
+	err = uc_emu_start(uc, 0, RAM, 0, 0);
+	if (err) {
+		printf("Emulation failed: %u %s\n", err, uc_strerror(err));
+		barf(uc);
+	}
 	
-	uc_reg_read(uc, UC_ARM_REG_R0, &reg);
-	printf("r0: 0x%X\n", reg);
-
 	uc_close(uc);
 
 	return 0;

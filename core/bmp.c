@@ -4,8 +4,10 @@
 #include "font.h"
 
 void bmp_fill_rect(int x1, int y1, int x2, int y2, uint32_t rgb) {
-	for (int x = x1; x < x1 + x2; x++) {
-		for (int y = y1; y < y1 + y2; y++) {
+	x2 += x1;
+	y2 += y1;
+	for (int x = x1; x < x2; x++) {
+		for (int y = y1; y < y2; y++) {
 			bmp_pixel(x, y, rgb);
 		}
 	}
@@ -30,10 +32,8 @@ int font_print_char(int x, int y, char c) {
 	for (int py = 0; py < 7; py++) {
 		for (int px = 0; px < 5; px++) {
 			if (font[match].code[py][px] == '#') {
-				bmp_pixel((x + px) * 2, (y + py) * 2, 0xffffff);
-				bmp_pixel((x + px) * 2 + 1, (y + py) * 2 + 1, 0xffffff);
-				bmp_pixel((x + px) * 2 + 1, (y + py) * 2, 0xffffff);
-				bmp_pixel((x + px) * 2, (y + py) * 2 + 1, 0xffffff);
+				//bmp_fill_rect((x + px + 1) * 2, (y + py) * 2, 1, 2, 0x999999);
+				bmp_fill_rect((x + px) * 2, (y + py) * 2, 2, 2, 0xffffff);
 
 				// Dynamix width character spacing
 				if (px > maxLength) {
