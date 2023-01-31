@@ -1,9 +1,10 @@
 -include config.mak
 
-UNICORN=/home/$(USER)/Pulled/unicorn
-
 # Compile Unicorn VM engine and pull cnlohr rawdraw
-CFLAGS?=-I$(UNICORN)/include -L$(UNICORN)/build -I/home/$(USER)/Documents/rawdraw
+UNICORN?=/home/$(USER)/Pulled/unicorn
+RAWDRAW?=$(shell echo ../../rawdraw)
+
+CFLAGS?=-I$(UNICORN)/include -L$(UNICORN)/build -I$(RAWDRAW)
 
 FILES=main.o
 emulator.o: $(FILES)

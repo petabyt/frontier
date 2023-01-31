@@ -2,7 +2,7 @@ test: os.bin
 	@cd emulator; $(MAKE)
 	emulator/emulator.o
 
-ARMCFLAGS=-c -fpic -mcpu=cortex-a7 -fno-builtin -Idrivers/emu -Icore/
+ARMCFLAGS=-c -fpic -mcpu=cortex-a7 -fno-builtin -Idrivers/emu -Icore/ -O1
 ARMCC?=arm-none-eabi
 ARMLDFLAGS=-Bstatic -T Linker.ld
 
@@ -47,4 +47,4 @@ js.h: core/test.js
 	xxd -i core/test.js > js.h
 
 clean:
-	$(RM) core/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin js.h
+	$(RM) core/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin js.h mjs/*.o
