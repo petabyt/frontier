@@ -2,7 +2,7 @@
 #include "io.h"
 
 void bmp_apply() {
-	((char *)UART_SYS_CTL)[0] = 1;
+	((char *)SYS_CTL)[0] = 1;
 }
 
 void bmp_clear(uint32_t rgb) {

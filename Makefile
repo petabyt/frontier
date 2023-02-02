@@ -2,7 +2,7 @@ test: os.bin
 	@cd emulator; $(MAKE)
 	emulator/emulator.o
 
-ARMCFLAGS=-c -fpic -mcpu=cortex-a7 -fno-builtin -Idrivers/emu -Icore/ -O1
+ARMCFLAGS=-c -fpic -mcpu=cortex-a7 -fno-builtin -Idrivers/emu -Icore/ -O1 -g
 ARMCC?=arm-none-eabi
 ARMLDFLAGS=-Bstatic -T Linker.ld
 
@@ -17,16 +17,21 @@ FILES+=core/bmp.o drivers/emu/io.o
 
 # mJS support
 FILES+=mjs/mjs.o
-ARMCFLAGS+=-I. -include platform_custom.h -Imjs/ -Imjs/src -g
+ARMCFLAGS+=-I. -include platform_custom.h -Imjs/ -Imjs/src
 mjs/mjs.o: ARMCFLAGS+=
 
-EXTERN_DEPS=Makefile
+EXTERN_DEPS=Makefile Linker.ld
 
 core/main.o: js.h
 
-os.bin: $(FILES)
+sym.o: sym.c
+	$(CC) sym.c -o sym.o
+
+os.bin: $(FILES) sym.o
 	$(ARMCC)-ld $(FILES) $(ARMLDFLAGS) -o os.elf
 	$(ARMCC)-objcopy -O binary os.elf os.bin
+	./sym.o
+	dd if=symtbl.bin bs=1G >> os.bin
 	$(ARMCC)-size --format=berkeley --target=binary os.bin
 	
 # output rule for C files
@@ -43,8 +48,9 @@ RFLAGS=-C opt-level=2 --target $(RARCH) --emit obj --crate-type rlib
 %.o: %.rs $(EXTERN_DEPS) $(wildcard *.rs)
 	$(RUSTC) $(RFLAGS) $< -o $@
 
-js.h: core/test.js
+js.h: core/test.js core/lib.js
 	xxd -i core/test.js > js.h
+	xxd -i core/lib.js >> js.h
 
 clean:
-	$(RM) core/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin js.h mjs/*.o
+	$(RM) core/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin js.h mjs/*.o *.out dump

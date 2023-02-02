@@ -49,4 +49,7 @@ SECTIONS {
 		*(.data*)
 		_data_end = .;
 	}
+
+	/* The data will be appended */
+	_symbol_table_start = .;
 }

@@ -13,7 +13,7 @@ void bmp_fill_rect(int x1, int y1, int x2, int y2, uint32_t rgb) {
 	}
 }
 
-int font_print_char(int x, int y, char c) {
+int font_print_char(int x, int y, char c, int color) {
 	// Loop to "null terminator character"
 	int match = 0;
 	for (int l = 0; font[l].letter != 0; l++) {
@@ -33,7 +33,7 @@ int font_print_char(int x, int y, char c) {
 		for (int px = 0; px < 5; px++) {
 			if (font[match].code[py][px] == '#') {
 				//bmp_fill_rect((x + px + 1) * 2, (y + py) * 2, 1, 2, 0x999999);
-				bmp_fill_rect((x + px) * 2, (y + py) * 2, 2, 2, 0xffffff);
+				bmp_fill_rect((x + px) * 2, (y + py) * 2, 2, 2, color);
 
 				// Dynamix width character spacing
 				if (px > maxLength) {
@@ -46,7 +46,7 @@ int font_print_char(int x, int y, char c) {
 	return maxLength;
 }
 
-int font_print_string(int x, int y, char *string) {
+int font_print_string(int x, int y, char *string, int color) {
 	int cx = x;
 	int cy = y;
 
@@ -55,7 +55,7 @@ int font_print_string(int x, int y, char *string) {
 		if (string[c] == ' ') {
 			length = 5;
 		} else {
-			length = font_print_char(cx, cy, string[c]) + 3;
+			length = font_print_char(cx, cy, string[c], color) + 3;
 		}
 
 		cx += length;

@@ -9,16 +9,39 @@
 
 #define STACK_SIZE 1000000
 
-#define RAM (16 * 1024 * 1024)
+#define RAM (8 * 1024 * 1024)
 #define ADDRESS 0x0
 
 uint32_t *screen;
 uint32_t alloc_start = 0;
 
-void HandleKey( int keycode, int bDown ) { }
-void HandleButton( int x, int y, int button, int bDown ) { }
-void HandleMotion( int x, int y, int mask ) { }
-void HandleDestroy() { }
+struct Keys {
+	int last_key;
+	int mouse_x;
+	int mouse_y;
+	int mouse_down;
+}keys;
+
+void HandleKey(int keycode, int bDown) {
+	if (bDown == 1) {
+		keys.last_key = keycode;
+	} else {
+		keys.last_key = 0;
+	}
+}
+
+void HandleButton( int x, int y, int button, int bDown ) {
+	keys.mouse_down = bDown;
+}
+
+void HandleMotion( int x, int y, int mask ) {
+	keys.mouse_x = x/2;
+	keys.mouse_y = y/2;
+}
+
+void HandleDestroy() {
+	puts("Destroy");
+}
 
 void barf(uc_engine *uc) {
 	int reg;
@@ -51,7 +74,21 @@ static uint64_t mmio_reads(uc_engine *uc, uint64_t offset, unsigned size, void *
 	switch (offset) {
 	case 8:
 		return alloc_start;
+	case 0xb:
+		CNFGHandleInput();
+		return keys.last_key;
+	case 0xe:
+		CNFGHandleInput();
+		return keys.mouse_down;
+	case 0x12:
+		CNFGHandleInput();
+		return keys.mouse_x;
+	case 0x16:
+		CNFGHandleInput();
+		return keys.mouse_y;
 	}
+
+	//if (offset)
 
 	return 0x0;
 }
@@ -120,14 +157,16 @@ int main(int argc, char *argv[]) {
 	fread(buffer, length, 1, f);
 	fclose(f);
 
-	uc_mem_write(uc, 0, buffer, length);	
+	uc_mem_write(uc, 0, buffer, length);
 	free(buffer);
 
 	// 100k of stack (grows backwards)
 	int reg = length + STACK_SIZE;
+	reg -= (reg % 0x8);
 	uc_reg_write(uc, UC_ARM_REG_SP, &reg);
 
-	alloc_start = STACK_SIZE + length + 64;
+	alloc_start = reg + 0x100;
+	alloc_start -= (reg % 0x8);
 
 	// Set up IO regions
 	uc_mmio_map(uc, 0x40000000, 0x10000000, mmio_reads, NULL,
