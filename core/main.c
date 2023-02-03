@@ -25,34 +25,15 @@ int entry() {
 	mjs_err_t err = mjs_exec(mjs, core_test_js, NULL);
 	printf("Result: %s\n", mjs_strerror(mjs, err));
 
-	mjs_exec(mjs, "renderFrame();", NULL);
-
-	int last_mouse = 0;
-	int render_sleeps = 0;
 	while (1) {
-		last_mouse = sys_check_mouse();
+		msleep(1);
 		if (sys_check_key(27)) {
 			sys_exit();
 		}
 
-		if (last_mouse) {
-			//printf("Down\n");
-		}
-
-		msleep(1);
-		render_sleeps++;
-		if (last_mouse == 1 && sys_check_mouse() == 0) {
-			printf("Clicked\n");
-			mjs_exec(mjs, "clicks++;", NULL);
-			mjs_exec(mjs, "renderFrame();", NULL);
-		}
-
-		if (render_sleeps > 500) {
-			render_sleeps = 0;
-			mjs_exec(mjs, "renderFrame();", NULL);
-		}
+		err = mjs_exec(mjs, "renderFrame();", NULL);
+		printf("Result: %s\n", mjs_strerror(mjs, err));
 	}
 
-	sys_exit();
 	return 0;
 }

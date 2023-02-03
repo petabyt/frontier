@@ -50,6 +50,9 @@ int font_print_string(int x, int y, char *string, int color) {
 	int cx = x;
 	int cy = y;
 
+	cy /= 2;
+	cx /= 2;
+
 	for (int c = 0; string[c] != '\0'; c++) {
 		int length;
 		if (string[c] == ' ') {

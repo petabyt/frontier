@@ -13,7 +13,7 @@ ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/7.3.1/
 ARMLDFLAGS+=-lc -lgcc
 
 FILES=core/boot.o core/main.o core/asm.o drivers/emu/mem.o drivers/emu/sys.o drivers/emu/bmp.o
-FILES+=core/bmp.o drivers/emu/io.o
+FILES+=core/bmp.o drivers/emu/io.o core/ui.o
 
 # mJS support
 FILES+=mjs/mjs.o
