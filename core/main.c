@@ -24,6 +24,9 @@ int entry() {
 	mjs_exec(mjs, core_lib_js, NULL);
 	mjs_err_t err = mjs_exec(mjs, core_test_js, NULL);
 	printf("Result: %s\n", mjs_strerror(mjs, err));
+	if (err) {
+		sys_exit();
+	}
 
 	while (1) {
 		msleep(1);

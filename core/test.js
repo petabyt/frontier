@@ -55,7 +55,7 @@ let clicks = 0;
 let framesLbl = null;
 function setupScreen() {
 	let c = ui.addContainer(0, 0, 0, 50, COLOR_WHITE);
-	ui.addLabel(c, "VisionOS uilib");
+	ui.addLabel(c, "OS uilib");
 	let c2 = ui.addContainer(0, 0, 0, 0, COLOR_GREY);
 	framesLbl = ui.addLabel(c2, "asd");
 }

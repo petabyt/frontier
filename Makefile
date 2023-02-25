@@ -1,9 +1,9 @@
 test: os.bin
-	@cd emulator; $(MAKE)
+	cd emulator; $(MAKE)
 	emulator/emulator.o
 
-ARMCFLAGS=-c -fpic -mcpu=cortex-a7 -fno-builtin -Idrivers/emu -Icore/ -O1 -g
 ARMCC?=arm-none-eabi
+ARMCFLAGS=-c -fpic -mcpu=cortex-a7 -fno-builtin -Idrivers/emu -Icore/ -O1 -g -Wall
 ARMLDFLAGS=-Bstatic -T Linker.ld
 
 # Add multiple locations to find GCC and libc libs
@@ -24,14 +24,14 @@ EXTERN_DEPS=Makefile Linker.ld
 
 core/main.o: js.h
 
-sym.o: sym.c
-	$(CC) sym.c -o sym.o
+pack.o: pack.c
+	$(CC) -g -Wall pack.c -o pack.o
 
-os.bin: $(FILES) sym.o
+os.bin: $(FILES) pack.o
 	$(ARMCC)-ld $(FILES) $(ARMLDFLAGS) -o os.elf
+	$(ARMCC)-ld -shared $(FILES) --strip-debug -o os2.elf
 	$(ARMCC)-objcopy -O binary os.elf os.bin
-	./sym.o
-	dd if=symtbl.bin bs=1G >> os.bin
+	./pack.o -i os.elf -o os.bin -s
 	$(ARMCC)-size --format=berkeley --target=binary os.bin
 	
 # output rule for C files

@@ -56,7 +56,7 @@ void get_key_status() {
 
 struct SymEntry {
 	uintptr_t addr;
-	int length;
+	short length;
 	char string[];
 };
 
@@ -72,14 +72,5 @@ void *mdlsym(void *handle, const char *name) {
 		}
 	}
 
-#if 0
-	if (!strcmp(name, "msleep")) return msleep;
-	if (!strcmp(name, "uart_str")) return uart_str;
-	if (!strcmp(name, "font_print_string")) return font_print_string;
-	if (!strcmp(name, "bmp_pixel")) return bmp_pixel;
-	if (!strcmp(name, "bmp_clear")) return bmp_clear;
-	if (!strcmp(name, "bmp_apply")) return bmp_apply;
-
-#endif
 	return NULL;
 }
