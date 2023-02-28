@@ -1,19 +1,18 @@
+#include <sys/stat.h>
 #include <unicorn/unicorn.h>
 
-//Make it so we don't need to include any other C files in our build.
-#define CNFG_IMPLEMENTATION
-#include "rawdraw_sf.h"
-
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#include <io.h>
 
 #define STACK_SIZE 1000000
 
 #define RAM (8 * 1024 * 1024)
 #define ADDRESS 0x0
 
-uint32_t *screen;
+#define SCREEN_OF 0x100
+
 uint32_t alloc_start = 0;
+
+FILE *temp_fp = NULL;
 
 struct Keys {
 	int last_key;
@@ -22,26 +21,13 @@ struct Keys {
 	int mouse_down;
 }keys;
 
-void HandleKey(int keycode, int bDown) {
-	if (bDown == 1) {
-		keys.last_key = keycode;
-	} else {
-		keys.last_key = 0;
-	}
-}
+struct IOLastRegs {
+	uint32_t r0;
+	uint32_t r1;
+	uint32_t r2;
+}io_regs;
 
-void HandleButton( int x, int y, int button, int bDown ) {
-	keys.mouse_down = bDown;
-}
-
-void HandleMotion( int x, int y, int mask ) {
-	keys.mouse_x = x/2;
-	keys.mouse_y = y/2;
-}
-
-void HandleDestroy() {
-	puts("Destroy");
-}
+#include "bmp.c"
 
 void barf(uc_engine *uc) {
 	int reg;
@@ -74,26 +60,86 @@ static uint64_t mmio_reads(uc_engine *uc, uint64_t offset, unsigned size, void *
 	switch (offset) {
 	case 8:
 		return alloc_start;
-	case 0xb:
+	case 0xc:
 		CNFGHandleInput();
 		return keys.last_key;
-	case 0xe:
+	case 0x10:
 		CNFGHandleInput();
 		return keys.mouse_down;
-	case 0x12:
+	case 0x14:
 		CNFGHandleInput();
 		return keys.mouse_x;
-	case 0x16:
+	case 0x18:
 		CNFGHandleInput();
 		return keys.mouse_y;
+	case 0x1c:
+		return io_regs.r0;
 	}
-
-	//if (offset)
 
 	return 0x0;
 }
 
-#define SCREEN_OF 0x100
+void mem_get_string(uc_engine *uc, int of, char *string, int max) {
+	char buf[1];
+	int i = 0;
+	while (1) {
+		uc_mem_read(uc, of, buf, 1);
+		string[i] = buf[0];
+		i++;
+		if (buf[0] == 0) {
+			return;
+		}
+		of++;
+	}
+}
+
+void mmio_syscall(uc_engine *uc, int value) {
+	if (value == SYS_EXIT) {
+		uc_close(uc);
+		exit(0);
+	} else if (value == SYS_RENDER) {
+		CNFGBlitImage(screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+		CNFGSwapBuffers();
+	} else if (value == SYS_BARF) {
+		barf(uc);
+	} else if (value == SYS_SETUP_BMP) {
+		screen = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+		CNFGSetup("Rigged Emulator", SCREEN_WIDTH, SCREEN_HEIGHT);
+	} else if (value == SYS_SLEEP) {
+		usleep(io_regs.r0 * 1000);
+	} else if (value == SYS_FOPEN) {
+		char filename[64];
+		char perms[64];
+		mem_get_string(uc, io_regs.r0, filename, sizeof(filename));
+		mem_get_string(uc, io_regs.r1, perms, sizeof(perms));
+
+		FILE *f = fopen(filename, perms);
+		temp_fp = f;
+		if (f == NULL) {
+			io_regs.r0 = 0;
+		} else {
+			io_regs.r0 = 1;
+		}
+	} else if (value == SYS_FWRITE) {
+		char *buffer = malloc(io_regs.r1);
+		uc_mem_read(uc, io_regs.r0, buffer, io_regs.r1);
+		io_regs.r0 = fwrite(buffer, io_regs.r1, 1, temp_fp);
+	} else if (value == SYS_FILE_SIZE) {
+		char path[64];
+		mem_get_string(uc, io_regs.r0, path, sizeof(path));
+		struct stat s;
+		stat(path, &s);
+		io_regs.r0 = s.st_size;
+	} else if (value == SYS_FREAD) {
+		char *buffer = malloc(io_regs.r1);
+		size_t x = fread(buffer, 1, io_regs.r1, temp_fp);
+		uc_mem_write(uc, io_regs.r0, buffer, io_regs.r1);
+		free(buffer);
+		io_regs.r0 = x;
+	} else if (value == SYS_FCLOSE) {
+		io_regs.r0 = fclose(temp_fp);
+	}
+}
 
 static void mmio_writes(uc_engine *uc, uint64_t offset, unsigned size, uint64_t value, void *user_data) {
 	if (offset >= SCREEN_OF && offset <= SCREEN_OF + (SCREEN_WIDTH * SCREEN_HEIGHT * 4)) {
@@ -102,27 +148,21 @@ static void mmio_writes(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
 	}
 
 	switch (offset) {
-	// General purpose sys call
 	case 0:
-		if (value == 0) {
-			uc_close(uc);
-			exit(0);
-		} else if (value == 1) {
-			CNFGBlitImage(screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-			CNFGSwapBuffers();
-		} else if (value == 2) {
-			barf(uc);
-		} else if (value == 3) {
-			// Setup up the screen
-			screen = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
-			CNFGSetup("Rigged Emulator", SCREEN_WIDTH, SCREEN_HEIGHT);
-		}
+		mmio_syscall(uc, value);
+		break;
+		// TODO: mmio_syscall
 	case 1:
-		printf("%c", (char)value);
-		return;
+	case 2:
+	case 3:
+		putchar(value);
+		break;
 	case 4:
-		usleep(value * 1000);
-		return;
+		io_regs.r0 = value;
+		break;
+	case 8:
+		io_regs.r1 = value;
+		break;
 	}
 }
 

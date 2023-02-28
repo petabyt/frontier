@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "elf.h"
+#include <elf.h>
+#include <linker.h>
 
 int linker_init_elf(void *file, struct ElfFileInfo *info) {
 	memset(info, 0, sizeof(struct ElfFileInfo));
@@ -25,7 +26,7 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 		printf("PH Entry type: %X\n", p->type);
 	}
 
-	puts("---");
+	printf("---\n");
 
 	struct ElfSectHeader32 *names = (struct ElfSectHeader32 *)
 				(file + h->shoff + (h->shstrndx * h->shentsize));
@@ -69,22 +70,4 @@ uint32_t linker_get_exec_size(void *file, struct ElfFileInfo *info) {
 
 uint32_t linker_map(void *file, struct ElfFileInfo *info, void *output) {
 	
-}
-
-int main() {
-	FILE *fp = fopen("main.elf", "r");
-	fseek(fp, 0, SEEK_END);
-	int length = (int)ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	char *buffer = malloc(length);
-	fread(buffer, 1, length, fp);
-	fclose(fp);
-
-	struct ElfFileInfo info;
-
-	linker_init_elf(buffer, &info);
-
-	printf("Size: %d\n", linker_get_exec_size(buffer, &info));
-
-	return 0;	
 }

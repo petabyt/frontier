@@ -67,21 +67,4 @@ struct ElfHeader32 {
 	uint16_t shstrndx;
 };
 
-// Non Elf stuff
-
-struct ElfFileInfo {
-	uint32_t max_exec_size;
-	uint32_t shstrtab_of;
-	uint32_t data_of;
-	uint32_t text_of;
-	uint32_t got_of;
-	uint32_t dynsym_of;
-	uint32_t rodata_of;
-};
-
-enum LinkerErrors {
-	LINK_OK = 0,
-	LINK_BAD_FORMAT = 1,
-};
-
 #pragma pack(pop)

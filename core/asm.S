@@ -6,6 +6,7 @@ asm_get_cpuinfo:
 
 	pop {pc}
 
+// TODO: Fix
 .extern uart_log
 .global printf
 printf:

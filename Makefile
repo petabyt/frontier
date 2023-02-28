@@ -12,15 +12,20 @@ ARMLDFLAGS+=-L$(ARMCCLOC)/arm-none-eabi/lib -L$(ARMCCLOC)/lib/gcc/arm-none-eabi/
 ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/7.3.1/
 ARMLDFLAGS+=-lc -lgcc
 
-FILES=core/boot.o core/main.o core/asm.o drivers/emu/mem.o drivers/emu/sys.o drivers/emu/bmp.o
-FILES+=core/bmp.o drivers/emu/io.o core/ui.o
+EMU_FILES=drivers/emu/mem.o drivers/emu/sys.o drivers/emu/bmp.o
+CORE_FILES+=core/boot.o core/bmp.o drivers/emu/io.o core/ui.o core/linker.o core/main.o core/asm.o
+
+$(EMU_FILES): $(wildcard drivers/emu/*.h)
+$(CORE_FILES): $(wildcard core/*.h)
+
+FILES=$(CORE_FILES) $(EMU_FILES)
 
 # mJS support
 FILES+=mjs/mjs.o
 ARMCFLAGS+=-I. -include platform_custom.h -Imjs/ -Imjs/src
 mjs/mjs.o: ARMCFLAGS+=
 
-EXTERN_DEPS=Makefile Linker.ld
+EXTERN_DEPS=Linker.ld
 
 core/main.o: js.h
 

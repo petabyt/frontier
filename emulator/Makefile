@@ -4,7 +4,7 @@
 UNICORN?=/home/$(USER)/Pulled/unicorn
 RAWDRAW?=$(shell echo ../../rawdraw)
 
-CFLAGS?=-I$(UNICORN)/include -L$(UNICORN)/build -I$(RAWDRAW)
+CFLAGS?=-I$(UNICORN)/include -L$(UNICORN)/build -I$(RAWDRAW) -I../drivers/emu/
 
 FILES=main.o
 emulator.o: $(FILES)

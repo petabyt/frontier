@@ -1,10 +1,30 @@
-#define UART_OUT_CHAR 0x40000001
+// Write
 #define SYS_CTL 0x40000000
-#define SYS_SLEEP 0x40000004
-#define SYS_KEY 0x4000000b
-#define SYS_MOUSE_DOWN 0x4000000e
-#define SYS_MOUSE_X 0x40000012
-#define SYS_MOUSE_Y 0x40000016
+#define UART_OUT_CHAR 0x40000001
+
+#define SYS_REGS 0x40000004
+#define SYS_R0 0x40000004
+#define SYS_R1 0x40000008
+#define SYS_R2 0x4000000c
+
+// Read
+#define SYS_KEY 0x4000000c
+#define SYS_MOUSE_DOWN 0x40000010
+#define SYS_MOUSE_X 0x40000014
+#define SYS_MOUSE_Y 0x40000018
+#define SYS_READ_REGS 0x4000001c
+
+// System constants
+#define SYS_EXIT 0
+#define SYS_RENDER 1
+#define SYS_BARF 2
+#define SYS_SETUP_BMP 3
+#define SYS_SLEEP 4
+#define SYS_FOPEN 5
+#define SYS_FWRITE 6
+#define SYS_FREAD 7
+#define SYS_FILE_SIZE 8
+#define SYS_FCLOSE 9
 
 void uart_char(char c);
 void uart_str(char *string);
