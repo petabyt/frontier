@@ -31,4 +31,7 @@ bne got_top
 skip:
 
 .extern entry
+adr lr, after
 b entry
+after:
+bl exit

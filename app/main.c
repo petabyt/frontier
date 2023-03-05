@@ -1,12 +1,16 @@
-const char *app_name = "myappname";
+#include <stdio.h>
 
-char *foobar = "hleloworld";
+int calculate(int, int);
 
-void print(char *);
+const char *foo = "Hello, WOrld";
 
-extern int fat;
+extern char *strn;
 
 int main() {
-	fat = 1;
-	print(foobar);
+	printf("Hello, ELF World\n");
+	printf("Test: %d\n", calculate(1, 1));
+}
+
+int calc() {
+	return 1231;
 }

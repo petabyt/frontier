@@ -1,4 +1,5 @@
 #include <stdint.h>
+
 #include "io.h"
 
 void bmp_apply() {
@@ -20,5 +21,6 @@ void bmp_test() {
 	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
 		((uint32_t *)SCREEN_BUFFER)[i] = i;
 	}
+
 	bmp_apply();
 }

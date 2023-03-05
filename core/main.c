@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+#include <frontier.h>
 #include <io.h>
 #include <bmp.h>
 #include <mjs.h>
@@ -19,7 +20,7 @@ void *alloc_file(char *filename) {
 	struct stat s;
 	stat(filename, &s);
 
-	printf("File size: %d\n", s.st_size);
+	printf("File size: %ld\n", s.st_size);
 
 	void *buffer = malloc(s.st_size);
 	if (buffer == NULL) {
@@ -44,23 +45,29 @@ void *alloc_file(char *filename) {
 	return buffer;
 }
 
+void asm_exec(uintptr_t);
+
 int f_load_app(char *filename) {
 	void *buffer = alloc_file(filename);
 
+	if (buffer == NULL) return 1;
+
 	struct ElfFileInfo i;
 
-	linker_init_elf(buffer, &i);
+	int ret = linker_init_elf(buffer, &i);
+	if (ret) {
+		printf("Linker failure\n");
+	} else {
+		linker_exec(buffer, &i);
+	}
 
-	int size = linker_get_exec_size(buffer, &i);
-	printf("Calculated size: %d\n", size);
+	return 0;
 }
 
 int entry() {
 	mem_init();
 
 	f_load_app("app/main.elf");
-	
-	sys_exit();
 
 	return 0;
 }

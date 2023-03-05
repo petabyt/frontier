@@ -13,12 +13,28 @@
 #define ELF_SHARED 3
 #define ELF_CORE 4
 
+#define SHT_PROGBITS 1
+#define SHT_REL 9
+
 #define PT_NULL 0
 #define PT_LOAD 1
 #define PT_DYNAMIC 2
 #define PT_INTERP 3
 
 #define ELF_MAGIC 0x464C457F
+
+#define SHN_UNDEF 0
+#define SHN_LOPROC 0xFF00
+#define SHN_HIPROC 0xFF1F
+#define SHN_LOOS 0xFF20
+#define SHN_HIOS 0xFF3F
+#define SHN_ABS 0xFFF1
+#define SHN_COMMON 0xFFF2
+
+#define R_ARM_CALL 28
+#define R_ARM_ABS32 2
+#define R_ARM_REL32 3
+#define R_ARM_V4BX 40
 
 struct ElfProgHeader32 {
 	uint32_t type;
@@ -65,6 +81,20 @@ struct ElfHeader32 {
 	uint16_t shentsize; // size of header section table entry
 	uint16_t shnum; // number of entries in the section header table
 	uint16_t shstrndx;
+};
+
+struct ElfSym32 {
+	uint32_t name;
+	uint32_t value;
+	uint32_t size;
+	uint8_t info;
+	uint8_t other;
+	uint16_t shndx;
+};
+
+struct ElfRel32 {
+	uint32_t offset;
+	uint32_t info;
 };
 
 #pragma pack(pop)

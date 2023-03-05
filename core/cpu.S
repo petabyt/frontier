@@ -6,8 +6,10 @@ asm_get_cpuinfo:
 
 	pop {pc}
 
-// TODO: Fix
-.extern uart_log
-.global printf
-printf:
-	b uart_log
+.global asm_exec
+asm_exec:
+	push {lr}
+
+	blx r0
+
+	pop {pc}

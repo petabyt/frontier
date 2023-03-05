@@ -1,6 +1,7 @@
 // Minimal backend code for GCC malloc
 #include <stdint.h>
 #include <string.h>
+
 #include "io.h"
 
 void mem_init() {}

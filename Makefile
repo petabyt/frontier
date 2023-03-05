@@ -1,4 +1,5 @@
 test: os.bin
+	cd app; $(MAKE)
 	cd emulator; $(MAKE)
 	emulator/emulator.o
 
@@ -9,12 +10,13 @@ ARMLDFLAGS=-Bstatic -T Linker.ld
 # Add multiple locations to find GCC and libc libs
 ARMCCLOC=/home/$(USER)/gcc-arm-none-eabi-5_4-2016q3
 ARMLDFLAGS+=-L$(ARMCCLOC)/arm-none-eabi/lib -L$(ARMCCLOC)/lib/gcc/arm-none-eabi/5.4.1
-ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/7.3.1/
+ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/10.3.1/
 ARMLDFLAGS+=-lc -lgcc
 
 EMU_FILES=drivers/emu/mem.o drivers/emu/sys.o drivers/emu/bmp.o
-CORE_FILES+=core/boot.o core/bmp.o drivers/emu/io.o core/ui.o core/linker.o core/main.o core/asm.o
+CORE_FILES+=core/boot.o core/bmp.o drivers/emu/io.o core/ui.o core/linker.o core/main.o core/cpu.o core/sym.o core/asm.o
 
+# Depend on header files
 $(EMU_FILES): $(wildcard drivers/emu/*.h)
 $(CORE_FILES): $(wildcard core/*.h)
 
@@ -34,7 +36,6 @@ pack.o: pack.c
 
 os.bin: $(FILES) pack.o
 	$(ARMCC)-ld $(FILES) $(ARMLDFLAGS) -o os.elf
-	$(ARMCC)-ld -shared $(FILES) --strip-debug -o os2.elf
 	$(ARMCC)-objcopy -O binary os.elf os.bin
 	./pack.o -i os.elf -o os.bin -s
 	$(ARMCC)-size --format=berkeley --target=binary os.bin
@@ -58,4 +59,4 @@ js.h: core/test.js core/lib.js
 	xxd -i core/lib.js >> js.h
 
 clean:
-	$(RM) core/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin js.h mjs/*.o *.out dump
+	$(RM) core/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin js.h *.out dump

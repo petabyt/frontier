@@ -1,7 +1,11 @@
+#ifndef FIO_H
+#define FIO_H
+
 // Write
 #define SYS_CTL 0x40000000
 #define UART_OUT_CHAR 0x40000001
 
+// Syscall paramters
 #define SYS_REGS 0x40000004
 #define SYS_R0 0x40000004
 #define SYS_R1 0x40000008
@@ -26,22 +30,14 @@
 #define SYS_FILE_SIZE 8
 #define SYS_FCLOSE 9
 
-void uart_char(char c);
-void uart_str(char *string);
-void uart_log(char *format, ...);
-
 #define SCREEN_BUFFER 0x40000100
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-void sys_exit();
-void sys_dump();
-void msleep(int ms);
-void sys_init_bmp();
-// void sys_init_bmp()
+void fsyscall(int v);
 
-int sys_check_mouse();
-int sys_check_key(int key);
-
+// Address to an integer
 #define MEM_ALLOC_START 0x40000008
+
+#endif
