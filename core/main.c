@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
-#include <frontier.h>
+#include <sys.h>
 #include <io.h>
 #include <bmp.h>
 #include <mjs.h>
@@ -12,9 +12,6 @@
 #include <linker.h>
 
 #include "../js.h"
-
-void *mdlsym(void *handle, const char *name);
-void mem_init();
 
 void *alloc_file(char *filename) {
 	struct stat s;
@@ -36,7 +33,7 @@ void *alloc_file(char *filename) {
 
 	size_t x = fread(buffer, 1, s.st_size, f);
 	if (x != s.st_size) {
-		printf("Coundn't read file");
+		printf("Coundn't read file\n");
 		return 0;
 	}
 
@@ -45,9 +42,7 @@ void *alloc_file(char *filename) {
 	return buffer;
 }
 
-void asm_exec(uintptr_t);
-
-int f_load_app(char *filename) {
+int sys_load_app(char *filename) {
 	void *buffer = alloc_file(filename);
 
 	if (buffer == NULL) return 1;
@@ -55,9 +50,15 @@ int f_load_app(char *filename) {
 	struct ElfFileInfo i;
 
 	int ret = linker_init_elf(buffer, &i);
-	if (ret) {
-		printf("Linker failure\n");
-	} else {
+	if (linker_error1 != NULL) {
+		if (linker_error2 == NULL) {
+			printf("ELF: %s\n", linker_error1);
+		} else {
+			printf("ELF: %s%s\n", linker_error1, linker_error2);
+		}
+	}
+
+	if (!ret) {
 		linker_exec(buffer, &i);
 	}
 
@@ -67,7 +68,17 @@ int f_load_app(char *filename) {
 int entry() {
 	mem_init();
 
-	f_load_app("app/main.elf");
+	sys_load_app("app/main.elf");
+
+	// sys_init_bmp();
+	// #define BENCH_COUNT 10000
+	// for (int i = 0; i < BENCH_COUNT; i++) {
+		// //bmp_pixel(1, 1, 0xffffff);
+		// bmp_apply();
+		// //uart_char('A');
+	// }
+
+	puts("Fast");
 
 	return 0;
 }

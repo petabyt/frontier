@@ -1,6 +1,21 @@
+#include <stdlib.h>
 #include <stdint.h>
 
 #include "io.h"
+
+void syscall(int code);
+
+void sys_init_bmp() {
+	syscall(SYS_SETUP_BMP);
+}
+
+int bmp_screen_width() {
+	return SCREEN_WIDTH;
+}
+
+int bmp_screen_height() {
+	return SCREEN_HEIGHT;
+}
 
 void bmp_apply() {
 	((char *)SYS_CTL)[0] = 1;

@@ -35,8 +35,6 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-void fsyscall(int v);
-
 // Address to an integer
 #define MEM_ALLOC_START 0x40000008
 

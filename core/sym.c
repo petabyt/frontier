@@ -8,7 +8,7 @@ struct SymEntry {
 };
 
 extern uint32_t _symbol_table_start;
-void *fdlsym(void *handle, const char *name) {
+void *f_dlsym(void *handle, const char *name) {
 	int of = 0;
 	while (1) {
 		struct SymEntry *x = (struct SymEntry *)((uintptr_t)(&_symbol_table_start) + of);

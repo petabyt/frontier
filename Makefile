@@ -14,30 +14,29 @@ ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/10.3.1
 ARMLDFLAGS+=-lc -lgcc
 
 EMU_FILES=drivers/emu/mem.o drivers/emu/sys.o drivers/emu/bmp.o
-CORE_FILES+=core/boot.o core/bmp.o drivers/emu/io.o core/ui.o core/linker.o core/main.o core/cpu.o core/sym.o core/asm.o
+CORE_FILES=core/boot.o core/bmp.o drivers/emu/io.o core/ui.o core/linker.o
+CORE_FILES+=core/main.o core/cpu.o core/sym.o core/asm.o
+FILES=$(CORE_FILES) $(EMU_FILES)
 
 # Depend on header files
 $(EMU_FILES): $(wildcard drivers/emu/*.h)
 $(CORE_FILES): $(wildcard core/*.h)
 
-FILES=$(CORE_FILES) $(EMU_FILES)
-
 # mJS support
 FILES+=mjs/mjs.o
 ARMCFLAGS+=-I. -include platform_custom.h -Imjs/ -Imjs/src
-mjs/mjs.o: ARMCFLAGS+=
 
 EXTERN_DEPS=Linker.ld
 
 core/main.o: js.h
 
-pack.o: pack.c
-	$(CC) -g -Wall pack.c -o pack.o
+fpack.o: fpack.c
+	$(CC) -g -Wall fpack.c -o fpack.o
 
-os.bin: $(FILES) pack.o
+os.bin: $(FILES) fpack.o
 	$(ARMCC)-ld $(FILES) $(ARMLDFLAGS) -o os.elf
 	$(ARMCC)-objcopy -O binary os.elf os.bin
-	./pack.o -i os.elf -o os.bin -s
+	./fpack.o -i os.elf -o os.bin -s
 	$(ARMCC)-size --format=berkeley --target=binary os.bin
 	
 # output rule for C files

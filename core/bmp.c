@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <bmp.h>
 
-#include "font.h"
+#include <font.h>
 
 void bmp_fill_rect(int x1, int y1, int x2, int y2, uint32_t rgb) {
 	x2 += x1;

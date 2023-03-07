@@ -29,14 +29,8 @@ fn puts(str: *const u8) {
 }
 
 #[no_mangle]
-pub fn calculate(a: u32, b: u32) -> u32 {
-	let d: u32;
+pub fn main() -> u32 {
+	puts(cstr!("Hello ELF Rust World"));
 
-	unsafe {
-		d = c::calc();
-	}
-
-	puts(cstr!("Hello Rust ELF World"));
-
-	return a + b + d;
+	return 0;
 }

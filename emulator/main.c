@@ -1,14 +1,14 @@
 #include <sys/stat.h>
 #include <unicorn/unicorn.h>
-
+#include <fcntl.h>
 #include <io.h>
 
-#define STACK_SIZE 1000000
+#define E_STACK_SIZE 1000000
 
-#define RAM (8 * 1024 * 1024)
-#define ADDRESS 0x0
+#define E_RAM (8 * 1024 * 1024)
+#define E_ADDRESS 0x0
 
-#define SCREEN_OF 0x100
+#define E_SCREEN_OF 0x100
 
 uint32_t alloc_start = 0;
 
@@ -49,11 +49,13 @@ void barf(uc_engine *uc) {
 		printf("r%d: 0x%X\n", i, reg);
 	}
 
-	void *buf = malloc(RAM);
-	uc_mem_read(uc, 0, buf, RAM);
+	void *buf = malloc(E_RAM);
+	uc_mem_read(uc, 0, buf, E_RAM);
 	FILE *f = fopen("dump", "w");
-	fwrite(buf, 1, RAM, f);
+	if (f == NULL) return;
+	fwrite(buf, 1, E_RAM, f);
 	fclose(f);
+	free(buf);
 }
 
 static uint64_t mmio_reads(uc_engine *uc, uint64_t offset, unsigned size, void *user_data) {
@@ -98,8 +100,8 @@ void mmio_syscall(uc_engine *uc, int value) {
 		uc_close(uc);
 		exit(0);
 	} else if (value == SYS_RENDER) {
-		CNFGBlitImage(screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		CNFGSwapBuffers();
+		CNFGUpdateScreenWithBitmap(screen, SCREEN_WIDTH, SCREEN_HEIGHT);
+		//CNFGSwapBuffers();
 	} else if (value == SYS_BARF) {
 		barf(uc);
 	} else if (value == SYS_SETUP_BMP) {
@@ -108,22 +110,18 @@ void mmio_syscall(uc_engine *uc, int value) {
 	} else if (value == SYS_SLEEP) {
 		usleep(io_regs.r0 * 1000);
 	} else if (value == SYS_FOPEN) {
-		char filename[64];
-		char perms[64];
-		mem_get_string(uc, io_regs.r0, filename, sizeof(filename));
-		mem_get_string(uc, io_regs.r1, perms, sizeof(perms));
-
-		FILE *f = fopen(filename, perms);
-		temp_fp = f;
-		if (f == NULL) {
-			io_regs.r0 = 0;
-		} else {
-			io_regs.r0 = 1;
+		if (io_regs.r1 == 0x10000) {
+			io_regs.r1 = 0x8000;
 		}
+	
+		char filename[64];
+		mem_get_string(uc, io_regs.r0, filename, sizeof(filename));
+		printf("%s %lX\n", filename, io_regs.r1);
+		io_regs.r0 = open(filename, io_regs.r1, io_regs.r2);
 	} else if (value == SYS_FWRITE) {
 		char *buffer = malloc(io_regs.r1);
-		uc_mem_read(uc, io_regs.r0, buffer, io_regs.r1);
-		io_regs.r0 = fwrite(buffer, io_regs.r1, 1, temp_fp);
+		uc_mem_read(uc, io_regs.r1, buffer, io_regs.r2);
+		io_regs.r0 = write(io_regs.r0, buffer, io_regs.r1);
 	} else if (value == SYS_FILE_SIZE) {
 		char path[64];
 		mem_get_string(uc, io_regs.r0, path, sizeof(path));
@@ -131,18 +129,18 @@ void mmio_syscall(uc_engine *uc, int value) {
 		stat(path, &s);
 		io_regs.r0 = s.st_size;
 	} else if (value == SYS_FREAD) {
-		char *buffer = malloc(io_regs.r1);
-		size_t x = fread(buffer, 1, io_regs.r1, temp_fp);
-		uc_mem_write(uc, io_regs.r0, buffer, io_regs.r1);
+		char *buffer = malloc(io_regs.r2);
+		ssize_t x = read(io_regs.r0, buffer, io_regs.r2);
+		uc_mem_write(uc, io_regs.r1, buffer, io_regs.r2);
 		free(buffer);
 		io_regs.r0 = x;
 	} else if (value == SYS_FCLOSE) {
-		io_regs.r0 = fclose(temp_fp);
+		io_regs.r0 = close(io_regs.r0);
 	}
 }
 
 static void mmio_writes(uc_engine *uc, uint64_t offset, unsigned size, uint64_t value, void *user_data) {
-	if (offset >= SCREEN_OF && offset <= SCREEN_OF + (SCREEN_WIDTH * SCREEN_HEIGHT * 4)) {
+	if (offset >= E_SCREEN_OF && offset <= E_SCREEN_OF + (SCREEN_WIDTH * SCREEN_HEIGHT * 4)) {
 		screen[(offset - 0x100) / 4] = (uint32_t)value;
 		return;
 	}
@@ -151,7 +149,6 @@ static void mmio_writes(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
 	case 0:
 		mmio_syscall(uc, value);
 		break;
-		// TODO: mmio_syscall
 	case 1:
 	case 2:
 	case 3:
@@ -162,6 +159,9 @@ static void mmio_writes(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
 		break;
 	case 8:
 		io_regs.r1 = value;
+		break;
+	case 12:
+		io_regs.r2 = value;
 		break;
 	}
 }
@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Map 2MB memory
-	uc_mem_map(uc, 0, RAM, UC_PROT_ALL);
+	uc_mem_map(uc, 0, E_RAM, UC_PROT_ALL);
 
 	FILE *f = fopen(filename, "r");
 	if (f == NULL) {
@@ -201,10 +201,11 @@ int main(int argc, char *argv[]) {
 	free(buffer);
 
 	// 100k of stack (grows backwards)
-	int reg = length + STACK_SIZE;
+	int reg = length + E_STACK_SIZE;
 	reg -= (reg % 0x8);
 	uc_reg_write(uc, UC_ARM_REG_SP, &reg);
 
+	// Align allocation start address
 	alloc_start = reg + 0x100;
 	alloc_start -= (reg % 0x8);
 
@@ -212,7 +213,7 @@ int main(int argc, char *argv[]) {
 	uc_mmio_map(uc, 0x40000000, 0x10000000, mmio_reads, NULL,
 		mmio_writes, NULL);
 
-	err = uc_emu_start(uc, 0, RAM, 0, 0);
+	err = uc_emu_start(uc, 0, E_RAM, 0, 0);
 	if (err) {
 		printf("Emulation failed: %u %s\n", err, uc_strerror(err));
 		barf(uc);
