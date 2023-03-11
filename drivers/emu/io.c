@@ -5,8 +5,6 @@
 
 #include "io.h"
 
-void syscall(int code);
-
 int _fstat(FILE *fd, void *stat) {
 	return 0;
 }

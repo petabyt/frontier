@@ -66,7 +66,9 @@ int sys_load_app(char *filename) {
 }
 
 int entry() {
-	mem_init();
+	sys_init_mem();
+
+	int x = sqrt(64);
 
 	sys_load_app("app/main.elf");
 
@@ -77,8 +79,6 @@ int entry() {
 		// bmp_apply();
 		// //uart_char('A');
 	// }
-
-	puts("Fast");
 
 	return 0;
 }

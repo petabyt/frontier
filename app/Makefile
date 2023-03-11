@@ -1,7 +1,7 @@
 ARMCC?=arm-none-eabi
 RUSTC=rustc
 
-FILES=main.o
+FILES=mandelbrot.o
 
 CFLAGS=-c -I../core/ -O4
 

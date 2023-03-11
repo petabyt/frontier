@@ -3,8 +3,6 @@
 
 #include "io.h"
 
-void syscall(int code);
-
 void sys_init_bmp() {
 	syscall(SYS_SETUP_BMP);
 }

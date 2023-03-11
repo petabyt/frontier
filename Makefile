@@ -11,7 +11,7 @@ ARMLDFLAGS=-Bstatic -T Linker.ld
 ARMCCLOC=/home/$(USER)/gcc-arm-none-eabi-5_4-2016q3
 ARMLDFLAGS+=-L$(ARMCCLOC)/arm-none-eabi/lib -L$(ARMCCLOC)/lib/gcc/arm-none-eabi/5.4.1
 ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/10.3.1/
-ARMLDFLAGS+=-lc -lgcc
+ARMLDFLAGS+=-lc -lgcc -lm
 
 EMU_FILES=drivers/emu/mem.o drivers/emu/sys.o drivers/emu/bmp.o
 CORE_FILES=core/boot.o core/bmp.o drivers/emu/io.o core/ui.o core/linker.o

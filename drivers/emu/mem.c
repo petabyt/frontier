@@ -4,7 +4,7 @@
 
 #include "io.h"
 
-void mem_init() {}
+void sys_init_mem() {}
 
 void *heap_end = 0;
 void *_sbrk(int incr) {

@@ -3,6 +3,7 @@
 
 void sys_dump();
 void sys_init_bmp();
+void sys_init_mem();
 
 void uart_char(char c);
 void uart_str(char *string);
@@ -10,7 +11,5 @@ void uart_log(char *format, ...);
 
 int sys_check_mouse();
 int sys_check_key(int key);
-
-void f_syscall(int v);
 
 #endif
