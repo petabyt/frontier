@@ -5,8 +5,8 @@
 
 #define E_STACK_SIZE 1000000
 
-#define E_RAM (8 * 1024 * 1024)
-#define E_ADDRESS 0x0
+#define E_RAM (16 * 1024 * 1024)
+#define E_ADDRESS 0x100
 
 #define E_SCREEN_OF 0x100
 
@@ -97,6 +97,10 @@ void mem_get_string(uc_engine *uc, int of, char *string, int max) {
 
 void mmio_syscall(uc_engine *uc, int value) {
 	if (value == SYS_EXIT) {
+		int reg;
+		uc_reg_read(uc, UC_ARM_REG_R0, &reg);
+		printf("Return: %08X\n", reg);
+
 		uc_close(uc);
 		exit(0);
 	} else if (value == SYS_RENDER) {
@@ -184,7 +188,7 @@ int main(int argc, char *argv[]) {
 	// Map 2MB memory
 	uc_mem_map(uc, 0, E_RAM, UC_PROT_ALL);
 
-	FILE *f = fopen(filename, "r");
+	FILE *f = fopen(filename, "rb");
 	if (f == NULL) {
 		printf("File not found\n");
 		return 1;
@@ -197,11 +201,11 @@ int main(int argc, char *argv[]) {
 	fread(buffer, length, 1, f);
 	fclose(f);
 
-	uc_mem_write(uc, 0, buffer, length);
+	uc_mem_write(uc, E_ADDRESS, buffer, length);
 	free(buffer);
 
 	// 100k of stack (grows backwards)
-	int reg = length + E_STACK_SIZE;
+	int reg = E_ADDRESS + length + E_STACK_SIZE;
 	reg -= (reg % 0x8);
 	uc_reg_write(uc, UC_ARM_REG_SP, &reg);
 
@@ -213,7 +217,7 @@ int main(int argc, char *argv[]) {
 	uc_mmio_map(uc, 0x40000000, 0x10000000, mmio_reads, NULL,
 		mmio_writes, NULL);
 
-	err = uc_emu_start(uc, 0, E_RAM, 0, 0);
+	err = uc_emu_start(uc, E_ADDRESS, E_RAM, 0, 0);
 	if (err) {
 		printf("Emulation failed: %u %s\n", err, uc_strerror(err));
 		barf(uc);

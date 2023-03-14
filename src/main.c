@@ -11,8 +11,6 @@
 #include <elf.h>
 #include <linker.h>
 
-#include "../js.h"
-
 void *alloc_file(char *filename) {
 	struct stat s;
 	stat(filename, &s);
@@ -65,12 +63,13 @@ int sys_load_app(char *filename) {
 	return 0;
 }
 
+//int strcasecmp(const char *a, const char *b) { return strcasecmp(a, b); }
+//int strncasecmp(const char *a, const char *b, size_t c) { return strncasecmp(a, b, c); }
+
 int entry() {
 	sys_init_mem();
 
-	int x = sqrt(64);
-
-	sys_load_app("app/main.elf");
+	sys_load_app("/home/daniel/Documents/fdoom/main.elf");
 
 	// sys_init_bmp();
 	// #define BENCH_COUNT 10000

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdint.h>
-
+#include "sys.h"
 #include "io.h"
 
 void sys_init_bmp() {

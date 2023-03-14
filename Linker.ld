@@ -2,14 +2,22 @@
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 
+PHDRS
+{
+  code         PT_LOAD;
+  data         PT_LOAD;
+}
+
 SECTIONS {
+	. = 0x100;
+
 	/* Stores code and stuff */
 	. = ALIGN(4);
 	.text : {
 		_text_start = .;
 		*(.text)
 		_text_end = .;
-	}
+	} : data
 
 	/* Read only data, stores strings and stuff */
 	. = ALIGN(4);
@@ -17,7 +25,7 @@ SECTIONS {
 		_rodata_start = .;
 		*(.rodata*)
 		_rodata_end = .;
-	}
+	} : data
 
 	/* Block starting symbol, for unitialized global arrays */
 	. = ALIGN(4);
@@ -25,7 +33,7 @@ SECTIONS {
 		_bss_start = .;
 		*(.bss*)
 		_bss_end = .;
-	}
+	}  : data
 
 	/* Global offset table. To add the correct offset, use this code:
 		uint32_t got_start = _got_start;
@@ -40,7 +48,7 @@ SECTIONS {
 		_got_start = .;
 		*(.got*)
 		_got_end = .;
-	}
+	}  : data
 
 	/* Regular data */
 	. = ALIGN(4);
@@ -48,7 +56,7 @@ SECTIONS {
 		_data_start = .;
 		*(.data*)
 		_data_end = .;
-	}
+	}  : data
 
 	/* The data will be appended */
 	_symbol_table_start = .;

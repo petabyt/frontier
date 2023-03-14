@@ -5,7 +5,10 @@
 
 #include <buttons.h>
 
+#include "sys.h"
 #include "io.h"
+
+int sys_mem_in_use = 0;
 
 void sys_key_status() {}
 
@@ -39,7 +42,8 @@ void msleep(int ms) {
 }
 
 void exit(int status) {
-	syscall(SYS_EXIT);
+	((char *)SYS_CTL)[0] = SYS_EXIT;
+	status = status;
 }
 
 void abort() {

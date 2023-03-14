@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 
+// Include JSON parser
 #include "mjs/src/frozen/frozen.c"
 
 #pragma pack(push, 1)

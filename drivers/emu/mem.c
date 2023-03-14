@@ -1,7 +1,7 @@
 // Minimal backend code for GCC malloc
 #include <stdint.h>
 #include <string.h>
-
+#include "sys.h"
 #include "io.h"
 
 void sys_init_mem() {}

@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <sys/stat.h>
-
+#include "sys.h"
 #include "io.h"
 
 int _fstat(FILE *fd, void *stat) {
@@ -52,4 +52,20 @@ int _lseek(int fd, int offset, uint32_t whence) {
 
 int _isatty(int fd) {
 	return 1;
+}
+
+int _unlink(const char *x) {
+	return -1;
+}
+
+int _link(const char *x, const char *b) {
+	return -1;
+}
+
+int system(char *x) {
+	return -1;
+}
+
+int mkdir(const char *_path, mode_t __mode) {
+	return -1;
 }
