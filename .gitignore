@@ -1,6 +1,5 @@
 *.o
 *.bin
 *.elf
-emulator
 *.out
 *.wad
