@@ -1,4 +1,4 @@
-// Headers for 32 bit ARM
+// Headers for 32 bit ARM ELF
 #include <stdint.h>
 
 #pragma pack(push, 1)
@@ -31,10 +31,22 @@
 #define SHN_ABS 0xFFF1
 #define SHN_COMMON 0xFFF2
 
-#define R_ARM_CALL 28
-#define R_ARM_ABS32 2
-#define R_ARM_REL32 3
-#define R_ARM_V4BX 40
+#define R_ARM_NONE        0
+#define R_ARM_PC24        1
+#define R_ARM_ABS32       2
+#define R_ARM_REL32       3
+#define R_ARM_THM_CALL      10
+#define R_ARM_CALL        28
+#define R_ARM_JUMP24      29
+#define R_ARM_THM_JUMP24    30
+#define R_ARM_TARGET1       38
+#define R_ARM_V4BX        40
+#define R_ARM TARGET2       41
+#define R_ARM_PREL31      42
+#define R_ARM_MOVW_ABS_NC     43
+#define R_ARM_MOVT_ABS      44
+#define R_ARM_THM_MOVW_ABS_NC   47
+#define R_ARM_THM_MOVT_ABS    48
 
 struct ElfProgHeader32 {
 	uint32_t type;

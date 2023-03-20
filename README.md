@@ -8,7 +8,7 @@ Frontier isn't a hobby OS, and isn't anywhere close to a desktop OS. It's a util
 
 # Features
 - 32 bit ARM v7 & v5 support (other architectures will not be considered)
-- Custom ARM emulator and Monolithic Kernel
+- Custom graphical ARM emulator written with Unicorn Engine and Rawdraw
 - Javscript Engine (mJS)
 - JSON based UI Library (C based renderer)
 - Support for buttons and touchscreens (not keyboards)
@@ -19,3 +19,11 @@ Frontier isn't a hobby OS, and isn't anywhere close to a desktop OS. It's a util
 - Apps are loaded as ELF objects, with a header including metadata (name, url, icon)
 - UI structure will be stored as JSON Object created by JS - and will be parsed by C
 - Apps can written in C, Rust, or Javascript (as scripts)
+
+# Project structure
+### drivers/emu
+Drivers (Kernel) for the emulator
+### src/
+Source code for the OS - contains linker, UI renderer, etc
+### mjs/
+Git submodule for mJS Javascript Engine

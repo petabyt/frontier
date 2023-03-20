@@ -10,12 +10,13 @@
 #include <mjs.h>
 #include <elf.h>
 #include <linker.h>
+#include <buttons.h>
 
 void *alloc_file(char *filename) {
 	struct stat s;
 	stat(filename, &s);
 
-	printf("File size: %ld\n", s.st_size);
+	printf("File size: %lu\n", s.st_size);
 
 	void *buffer = malloc(s.st_size);
 	if (buffer == NULL) {
@@ -43,6 +44,10 @@ void *alloc_file(char *filename) {
 int sys_load_app(char *filename) {
 	void *buffer = alloc_file(filename);
 
+	struct stat s;
+	stat(filename, &s);
+	sys_segment(buffer, s.st_size);
+
 	if (buffer == NULL) return 1;
 
 	struct ElfFileInfo i;
@@ -57,7 +62,7 @@ int sys_load_app(char *filename) {
 	}
 
 	if (!ret) {
-		linker_exec(buffer, &i);
+		printf("return: %d\n", linker_exec(buffer, &i));
 	}
 
 	return 0;
@@ -67,17 +72,10 @@ int sys_load_app(char *filename) {
 //int strncasecmp(const char *a, const char *b, size_t c) { return strncasecmp(a, b, c); }
 
 int entry() {
+	sys_init_syms();
 	sys_init_mem();
 
-	sys_load_app("/home/daniel/Documents/fdoom/main.elf");
-
-	// sys_init_bmp();
-	// #define BENCH_COUNT 10000
-	// for (int i = 0; i < BENCH_COUNT; i++) {
-		// //bmp_pixel(1, 1, 0xffffff);
-		// bmp_apply();
-		// //uart_char('A');
-	// }
+	//sys_load_app("hello/hello.elf");
 
 	return 0;
 }

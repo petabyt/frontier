@@ -17,6 +17,7 @@
 #define SYS_MOUSE_X 0x40000014
 #define SYS_MOUSE_Y 0x40000018
 #define SYS_READ_REGS 0x4000001c
+#define SYS_TICKS_MS 0x40000024
 
 // System constants
 #define SYS_EXIT 0
@@ -29,10 +30,12 @@
 #define SYS_FREAD 7
 #define SYS_FILE_SIZE 8
 #define SYS_FCLOSE 9
+#define SYS_FSEEK 10
+#define SYS_SEGMENT 11
 
 #define SCREEN_BUFFER 0x40000100
 
-#define SCREEN_WIDTH 640
+#define SCREEN_WIDTH 720
 #define SCREEN_HEIGHT 480
 
 // Address to an integer

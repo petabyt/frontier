@@ -1,6 +1,7 @@
-// Minimal backend code for GCC malloc
+// Minimal backend code for libgcc memory manager
 #include <stdint.h>
 #include <string.h>
+
 #include "sys.h"
 #include "io.h"
 

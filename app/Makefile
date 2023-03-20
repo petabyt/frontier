@@ -3,12 +3,12 @@ RUSTC=rustc
 
 FILES=mandelbrot.o
 
-CFLAGS=-c -I../core/ -O4
+CFLAGS=-c -I../src/ -O4 -mcpu=cortex-a7
 
 all: $(FILES)
 	$(ARMCC)-ld -r $(FILES) -o main.elf
 
-%.o: %.c ptetris.h
+%.o: %.c ptetris.h Makefile
 	$(ARMCC)-gcc $(CFLAGS) $< -o $@
 
 RARCH=armv7-unknown-linux-gnueabi

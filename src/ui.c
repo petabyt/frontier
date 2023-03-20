@@ -77,3 +77,7 @@ void ui_draw_text(char *text, int color) {
 void ui_end_container() {
 	ui.cur--;
 }
+
+int ui_render() {
+	
+}

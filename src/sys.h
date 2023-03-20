@@ -1,6 +1,8 @@
 #ifndef F_H
 #define F_H
 
+// Kernel functions
+
 void sys_dump();
 void sys_init_bmp();
 void sys_init_mem();

@@ -30,40 +30,13 @@ let ui = {
 		this.screen[this.screen.length] = e;
 		return e;
 	},
-
-	renderContainer: function(e) {
-		for (let i = 0; i < e.length; i++) {
-			if (e[i].type === E_CONTAINER) {
-				this.drawContainer(e[i].x, e[i].y, e[i].width, e[i].height, e[i].color);
-				this.renderContainer(e[i].children);
-				this.endContainer();
-			} else if (e[i].type === E_LABEL) {
-				this.drawText(e[i].text, e[i].color);
-			}
-		}
-	},
-
-	render: function() {
-		bmp.clear(COLOR_YELLOW);
-		this.reset();
-		this.renderContainer(this.screen);
-		bmp.render();
-	}
 };
 
-let clicks = 0;
-let framesLbl = null;
-function setupScreen() {
-	let c = ui.addContainer(0, 0, 0, 50, COLOR_WHITE);
-	ui.addLabel(c, "OS uilib");
-	let c2 = ui.addContainer(0, 0, 0, 0, COLOR_GREY);
-	framesLbl = ui.addLabel(c2, "asd");
-}
-
-setupScreen();
-
-function renderFrame() {
-	ui.render();
-	framesLbl.text = "mJS Render speed test: " + String(clicks);
-	clicks++;
-}
+// TODO: Implement this
+let label = ui.label("Hello Frontier");
+ui.setContent(ui.container([
+	label,
+	ui.button("Hello", function() {
+		ui.popup("Hello, World");
+	}),
+]));

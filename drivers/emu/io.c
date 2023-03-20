@@ -42,12 +42,16 @@ int _read(int fd, void *buf, int bytes) {
 
 int _close(int fd) {
 	((int *)SYS_REGS)[0] = fd;
-	syscall(SYS_FREAD);
+	syscall(SYS_FCLOSE);
 	return ((int *)SYS_READ_REGS)[0];
 }
 
 int _lseek(int fd, int offset, uint32_t whence) {
-	return -1;
+	((int *)SYS_REGS)[0] = fd;
+	((int *)SYS_REGS)[1] = offset;
+	((uint32_t *)SYS_REGS)[2] = whence;
+	syscall(SYS_FSEEK);
+	return ((int *)SYS_READ_REGS)[0];
 }
 
 int _isatty(int fd) {

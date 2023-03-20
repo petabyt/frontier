@@ -9,7 +9,7 @@ PHDRS
 }
 
 SECTIONS {
-	. = 0x100;
+	. = 4096;
 
 	/* Stores code and stuff */
 	. = ALIGN(4);

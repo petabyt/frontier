@@ -1,14 +1,27 @@
 #define CNFG_IMPLEMENTATION
 #include <rawdraw_sf.h>
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#include <emulator.h>
+#include <io.h>
 
 uint32_t *screen;
+
+int bmp_render() {
+	CNFGUpdateScreenWithBitmap(screen, SCREEN_WIDTH, SCREEN_HEIGHT);
+	//CNFGSwapBuffers();
+	return 0;
+}
+
+int bmp_setup() {
+	screen = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+	CNFGSetup("Rigged Emulator", SCREEN_WIDTH, SCREEN_HEIGHT);
+	return 0;
+}
 
 void HandleKey(int keycode, int bDown) {
 	switch (keycode) {
 		case CNFG_KEY_ESCAPE: keycode = 27; break;
+		case CNFG_KEY_ENTER: keycode = 13; break;
 		case CNFG_KEY_BOTTOM_ARROW: keycode = 40; break;
 		case CNFG_KEY_TOP_ARROW: keycode = 38; break;
 		case CNFG_KEY_RIGHT_ARROW: keycode = 39; break;

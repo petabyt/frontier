@@ -49,11 +49,12 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 		int type = (uint8_t)(relocs[i].info);
 
 		char *name = (char *)(file + str->offset + syms[index].name);
-
 		uint32_t *target_loc = (void *)(file + target->offset + relocs[i].offset);
-		if (type == R_ARM_CALL) {
+		
+		switch (type) {
+		case R_ARM_CALL:
 			if (syms[index].value == 0 && syms[index].shndx == 0) {
-				void *call = f_dlsym(NULL, name);
+				void *call = sym(name);
 				if (call == NULL) {
 					printf("Undefined external function %s\n", name);
 					linker_error1 = linker_undefined_sym;
@@ -63,12 +64,25 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 				asm_gen_call(target_loc, call);
 			} else {
 				asm_gen_call(target_loc, file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset);
+			} break;
+		case R_ARM_ABS32:
+			*target_loc += file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
+			break;
+		case R_ARM_REL32:
+			*target_loc += (get_elf_head(file, syms[index].shndx)->offset) - (target->offset + relocs[i].offset);
+			break;
+		case R_ARM_MOVW_ABS_NC:
+		case R_ARM_MOVT_ABS: {
+			uintptr_t offset = file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
+
+			if (type == R_ARM_MOVT_ABS) {
+				offset >>= 16;
 			}
-		} else if (type == R_ARM_ABS32) {
-			target_loc[0] = file + target_loc[0] + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
-		} else if (type == R_ARM_REL32) {
-			// Confusing pointer order of operations
-			target_loc[0] += (get_elf_head(file, syms[index].shndx)->offset) - (target->offset + relocs[i].offset);
+
+			*target_loc &= 0xfff0f000;
+			*target_loc |= ((offset & 0xf000) << 4) | (offset & 0x0fff);
+		}
+		break;
 		}
 	}
 
@@ -125,6 +139,11 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 			info->symtab_of = of;
 		} else if (!strcmp(sect_name, ".strtab")) {
 			info->strtab_of = of;
+		} else if (!strcmp(sect_name, ".bss")) {
+			if (s->size > 0 && s->addr == 0) {
+				s->offset = malloc(s->size);
+			}
+			memset(file + s->offset, 0, s->size);
 		}
 	}
 
@@ -159,7 +178,7 @@ uintptr_t linker_get_symbol(void *file, struct ElfFileInfo *info, char *name) {
 uint32_t linker_exec(void *file, struct ElfFileInfo *info) {
 	uintptr_t main = linker_get_symbol(file, info, "main");
 	if (main == NULL) {
-		printf("main() not found");
+		printf("main() not found\n");
 		return 1;
 	}
 

@@ -1,4 +1,4 @@
-// Hello
+// mJS bindings to Frontier, and polyfills
 
 let io = {
 	print: ffi("void uart_str(char *)"),

@@ -23,6 +23,10 @@ int sys_check_key(int key) {
 		key = 37;
 	} else if (key == SYS_BUTTON_RIGHT) {
 		key = 39;
+	} else if (key == SYS_BUTTON_RIGHT) {
+		key = 39;
+	} else if (key == SYS_BUTTON_OK) {
+		key = 13;
 	}
 
 	return ((char *)SYS_KEY)[0] == key;
@@ -42,20 +46,26 @@ void msleep(int ms) {
 }
 
 void exit(int status) {
-	((char *)SYS_CTL)[0] = SYS_EXIT;
-	status = status;
+	((int *)SYS_R0)[0] = status;
+	syscall(SYS_EXIT);
 }
 
 void abort() {
 	syscall(SYS_EXIT);
 }
 
-int _kill(int pid, int sig) {
-	return -1;
-}
-
 void sys_dump() {
 	syscall(SYS_BARF);
+}
+
+int sys_segment(uintptr_t start, uint32_t length) {
+	((uintptr_t *)SYS_R0)[0] = start;
+	((uint32_t *)SYS_R0)[1] = start;
+	syscall(SYS_SEGMENT);
+}
+
+int sys_get_ticks() {
+	return ((uint32_t *)SYS_TICKS_MS)[0];
 }
 
 void uart_char(char c) {
@@ -70,11 +80,11 @@ void uart_str(const char *string) {
 }
 
 int printf(const char *format, ...) {
-	char buffer[128];
+	char buffer[1024];
 	va_list aptr;
 
 	va_start(aptr, format);
-	vsprintf(buffer, format, aptr);
+	vsnprintf(buffer, sizeof(buffer), format, aptr);
 	va_end(aptr);
 
 	uart_str(buffer);
@@ -93,5 +103,9 @@ int _gettimeofday() {
 }
 
 int _getpid() {
+	return -1;
+}
+
+int _kill(int pid, int sig) {
 	return -1;
 }
