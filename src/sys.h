@@ -1,7 +1,9 @@
 #ifndef F_H
 #define F_H
 
-// Kernel functions
+// Frontier kernel functions
+
+extern int sys_mem_in_use;
 
 void sys_dump();
 void sys_init_bmp();

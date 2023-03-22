@@ -56,7 +56,7 @@ int sys_init_syms() {
 	return 0;
 }
 
-void *sym(const char *name) {
+void *sym(void *a, const char *name) {
 	int of = 0;
 	while (1) {
 		struct SymEntry *x = (struct SymEntry *)((uintptr_t)(&_symbol_table_start) + of);

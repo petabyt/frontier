@@ -2,8 +2,10 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <sys/stat.h>
-#include "sys.h"
-#include "io.h"
+
+#include "emu.h"
+
+void syscall(int v);
 
 int _fstat(FILE *fd, void *stat) {
 	return 0;

@@ -5,8 +5,9 @@
 
 #include <buttons.h>
 
-#include "sys.h"
-#include "io.h"
+#include "emu.h"
+
+void syscall(int v);
 
 int sys_mem_in_use = 0;
 
@@ -96,6 +97,10 @@ int puts(const char *x) {
 	uart_str(x);
 	uart_char('\n');
 	return 0;
+}
+
+int getchar() {
+	return ((int *)SYS_GET_CHAR)[0];
 }
 
 int _gettimeofday() {

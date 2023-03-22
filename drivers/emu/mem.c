@@ -2,8 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "sys.h"
-#include "io.h"
+#include "emu.h"
 
 void sys_init_mem() {}
 

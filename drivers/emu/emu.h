@@ -18,6 +18,7 @@
 #define SYS_MOUSE_Y 0x40000018
 #define SYS_READ_REGS 0x4000001c
 #define SYS_TICKS_MS 0x40000024
+#define SYS_GET_CHAR 0x40000028
 
 // System constants
 #define SYS_EXIT 0

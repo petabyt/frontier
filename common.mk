@@ -19,4 +19,3 @@ RFLAGS=-C opt-level=2 --target $(RARCH) --emit obj --crate-type rlib
 
 clean:
 	$(RM) src/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin *.out dump
-

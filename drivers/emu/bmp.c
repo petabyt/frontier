@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdint.h>
-#include "sys.h"
-#include "io.h"
+
+#include "emu.h"
+
+void syscall(int v);
 
 void sys_init_bmp() {
 	syscall(SYS_SETUP_BMP);

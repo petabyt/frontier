@@ -3,8 +3,7 @@
 #include <unicorn/unicorn.h>
 #include <fcntl.h>
 
-#include <io.h>
-
+#include <emu.h>
 #include <bmp.h>
 #include <emulator.h>
 
@@ -83,7 +82,9 @@ uint64_t mmio_reads(uc_engine *uc, uint64_t offset, unsigned size, void *user_da
 		struct timezone tzp;
 		gettimeofday(&tp, &tzp);
 		return (tp.tv_sec * 1000) + (tp.tv_usec / 1000);
-		} break;
+		}
+	case 0x28:
+		return getchar();
 	}
 
 	return 0x0;

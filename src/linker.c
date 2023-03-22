@@ -6,6 +6,7 @@
 
 #include <elf.h>
 #include <linker.h>
+#include <sym.h>
 
 char *linker_ok = "Successfully linked";
 char *linker_undefined_sym = "Couldn't find symbol: ";
@@ -54,7 +55,7 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 		switch (type) {
 		case R_ARM_CALL:
 			if (syms[index].value == 0 && syms[index].shndx == 0) {
-				void *call = sym(name);
+				void *call = sym(NULL, name);
 				if (call == NULL) {
 					printf("Undefined external function %s\n", name);
 					linker_error1 = linker_undefined_sym;

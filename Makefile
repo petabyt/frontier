@@ -1,12 +1,12 @@
 test: os.bin
-	cd hello; $(MAKE)
+	#cd hello && $(MAKE)
 	emulator/frontier.o -i os.bin -e
 
 TOPL=.
 -include common.mk
 
 ARMCC?=arm-none-eabi
-ARMCFLAGS=-c -mcpu=cortex-a7 -fno-builtin -Idrivers/emu -Isrc/ -g -Wall -O4
+ARMCFLAGS=-c -mcpu=cortex-a5 -fno-builtin -Idrivers/emu -Isrc/ -g -Wall -O4
 ARMLDFLAGS=-T Linker.ld
 
 # Add multiple locations to find GCC and libc libs
@@ -20,7 +20,7 @@ ARMLDFLAGS+=-u strcasecmp -u strncasecmp -u remove -u rename -u __aeabi_i2f -u _
 
 EMU_FILES=drivers/emu/mem.o drivers/emu/sys.o drivers/emu/bmp.o drivers/emu/io.o
 SRC_FILES=src/boot.o src/bmp.o src/ui.o src/linker.o src/test.o
-SRC_FILES+=src/main.o src/cpu.o src/sym.o src/asm.o src/data.o
+SRC_FILES+=src/main.o src/cpu.o src/sym.o src/asm.o src/data.o src/uart.o src/js.o
 FILES=$(SRC_FILES) $(EMU_FILES)
 
 # Depend on header files

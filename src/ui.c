@@ -1,7 +1,6 @@
 #include <stdint.h>
 
 #include <bmp.h>
-#include <io.h>
 
 /*
 
@@ -39,16 +38,16 @@ void ui_draw_container(int x, int y, int width, int height, int color) {
 	}
 
 	if (width == 0) {
-		width = SCREEN_WIDTH - ui.x[ui.cur];
+		width = bmp_screen_width() - ui.x[ui.cur];
 	}
 
 	if (height == 0) {
-		height = SCREEN_HEIGHT - ui.y[ui.cur];
+		height = bmp_screen_height() - ui.y[ui.cur];
 	}
 
 	bmp_fill_rect(x, y, width, height, color);
 
-	if (x + width == SCREEN_WIDTH) {
+	if (x + width == bmp_screen_width()) {
 		x = 0;
 		width = 0;
 	}

@@ -5,12 +5,11 @@
 #include <sys/stat.h>
 
 #include <sys.h>
-#include <io.h>
 #include <bmp.h>
-#include <mjs.h>
-#include <elf.h>
 #include <linker.h>
 #include <buttons.h>
+#include <js.h>
+#include <sym.h>
 
 void *alloc_file(char *filename) {
 	struct stat s;
@@ -71,9 +70,16 @@ int sys_load_app(char *filename) {
 //int strcasecmp(const char *a, const char *b) { return strcasecmp(a, b); }
 //int strncasecmp(const char *a, const char *b, size_t c) { return strncasecmp(a, b, c); }
 
+int uart_welcome();
+void uart_prompt();
+
 int entry() {
 	sys_init_syms();
 	sys_init_mem();
+	js_init();
+
+	uart_welcome();
+	uart_prompt();
 
 	//sys_load_app("hello/hello.elf");
 

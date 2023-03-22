@@ -2,7 +2,7 @@
 #include <rawdraw_sf.h>
 
 #include <emulator.h>
-#include <io.h>
+#include <emu.h>
 
 uint32_t *screen;
 
