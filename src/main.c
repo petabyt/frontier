@@ -78,10 +78,7 @@ int entry() {
 	sys_init_mem();
 	js_init();
 
-	uart_welcome();
-	uart_prompt();
-
-	//sys_load_app("hello/hello.elf");
+	sys_load_app("app/hello/hello.elf");
 
 	return 0;
 }

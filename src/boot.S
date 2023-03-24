@@ -31,12 +31,12 @@ bne got_top
 skip:
 
 // Quick code to clear BSS
-mov   r0,#0                     // get a zero
-ldr   r1,=_bss_start           // -> bss start
-ldr   r2,=_bss_end           // -> bss end
-2: cmp   r1,r2                     // check if data to clear
-strlo r0,[r1],#4                // clear 4 bytes
-blo   2b                        // loop until don
+mov   r0,#0               // get a zero
+ldr   r1,=_bss_start      // -> bss start
+ldr   r2,=_bss_end        // -> bss end
+2: cmp   r1,r2            // check if data to clear
+strlo r0,[r1],#4          // clear 4 bytes
+blo   2b                  // loop until don
 
 .extern entry
 adr lr, after

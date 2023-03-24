@@ -1,12 +1,11 @@
 test: os.bin
-	#cd hello && $(MAKE)
 	emulator/frontier.o -i os.bin -e
 
 TOPL=.
 -include common.mk
 
 ARMCC?=arm-none-eabi
-ARMCFLAGS=-c -mcpu=cortex-a5 -fno-builtin -Idrivers/emu -Isrc/ -g -Wall -O4
+ARMCFLAGS=-c -mcpu=cortex-a5 -fno-builtin -Idrivers/emu -Isrc/ -g -Wall -O2
 ARMLDFLAGS=-T Linker.ld
 
 # Add multiple locations to find GCC and libc libs
@@ -15,6 +14,7 @@ ARMLDFLAGS+=-L$(ARMCCLOC)/arm-none-eabi/lib -L$(ARMCCLOC)/lib/gcc/arm-none-eabi/
 ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/10.3.1/
 ARMLDFLAGS+=-lc -lgcc -lm
 
+# Require some functions
 ARMLDFLAGS+=-u strcasecmp -u strncasecmp -u remove -u rename -u __aeabi_i2f -u __aeabi_fmul \
 -u __aeabi_fdiv -u atof -u strstr -u __aeabi_f2iz -u __errno
 
@@ -32,9 +32,9 @@ FILES+=mjs/mjs.o
 ARMCFLAGS+=-I. -include platform_custom.h -Imjs/ -Imjs/src
 
 build-util:
-	cd emulator; $(MAKE)
+	cd emulator && $(MAKE)
 
-os.bin: $(FILES) build-util Makefile Linker.ld
+os.bin: $(FILES) build-util
 	$(ARMCC)-ld $(FILES) $(ARMLDFLAGS) -o os.elf
 	$(ARMCC)-objcopy -O binary os.elf os.bin
 	emulator/frontier.o -i os.elf -o os.bin -s

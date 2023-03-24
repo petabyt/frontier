@@ -1,3 +1,4 @@
+// Rust bindings fo Frontier OS
 macro_rules! cstr {
     ($data:literal) => {
         &concat!($data, "\0").as_bytes()[0] as *const u8
@@ -14,7 +15,7 @@ pub mod c {
 }
 
 #[no_mangle]
-fn panic() {
+pub fn panic() {
 	unsafe {
 		c::puts(cstr!("RUST PANIC"));
 	}
@@ -22,7 +23,7 @@ fn panic() {
 	loop {}
 }
 
-fn str_to_u8_ptr(input_str: &str, buffer: &mut [u8]) -> *const u8 {
+pub fn str_to_u8_ptr(input_str: &str, buffer: &mut [u8]) -> *const u8 {
     let input_bytes = input_str.as_bytes();
     let buffer_len = buffer.len();
     if input_bytes.len() + 1 > buffer_len {
@@ -35,16 +36,10 @@ fn str_to_u8_ptr(input_str: &str, buffer: &mut [u8]) -> *const u8 {
     buffer.as_ptr()
 }
 
-fn puts(str: &str) {
+pub fn puts(str: &str) {
     let mut buffer = [0u8; 256];
     let ptr = str_to_u8_ptr(str, &mut buffer);
 	unsafe {
 		c::puts(ptr);
 	}
-}
-
-#[no_mangle]
-pub fn main() -> u32 {
-	puts("Hello ELF Rust World");
-	return 0;
 }
