@@ -46,7 +46,7 @@ int add_syms(char *input, char *output) {
 	}
 
 	fclose(f);
-	fclose(c);
+	pclose(c);
 
 	return 0;
 }
@@ -68,4 +68,5 @@ int gen_app_meta(struct AppMetaData *amd, char *content) {
 	amd->api_version = 0;
 
 	printf("Name: %s\n", name);
+	return 0;
 }

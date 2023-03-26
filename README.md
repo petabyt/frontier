@@ -13,7 +13,7 @@ Frontier is a utility operating system that allows existing technology to be mad
 - JSON based UI Library (C based renderer)
 - Support for buttons and touchscreens (not keyboards)
 - 32 Bit ELF Linker for modules and apps
-- Runtime ARM Assembler
+- Runtime ARM Assembler for memory patches
 
 # Design
 - Apps are loaded as ELF objects, with a header including metadata (name, url, icon)
@@ -23,8 +23,13 @@ Frontier is a utility operating system that allows existing technology to be mad
 
 # Roadmap
 - [x] Basic emulator, kernel, hello world tests
+- [x] Link and test libc, libm, libgcc
 - [x] Linker implemented
-- [ ] UI Library
+- [ ] Multithreading
+- [ ] CLI 'shell' for debugging
+- [ ] Port for thumb bytecode (test on micro:bit)
+- [ ] JSON based UI Library
+- [x] Button, keyboard, mouse IO
 
 # Project structure
 ### drivers/emu

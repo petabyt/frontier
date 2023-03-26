@@ -13,7 +13,7 @@ $(UNICORN):
 $(RAWDRAW):
 	echo Clone rawdraw in $(RAWDRAW) or modify RAWDRAW in config.mak
 
-CFLAGS?=-I$(RAWDRAW) -I../drivers/emu/ -O4 -I. -Wall -g
+CFLAGS?=-I$(RAWDRAW) -I../drivers/emu/ -I. -Wall -g
 
 frontier.o: $(FILES) Makefile $(UNICORN) $(RAWDRAW)
 	$(CC) $(FILES) -lunicorn -lX11 -lGL -lm -o frontier.o

@@ -29,7 +29,8 @@ void *alloc_file(char *filename) {
 		return 0;
 	}
 
-	size_t x = fread(buffer, 1, s.st_size, f);
+	size_t x = fread(buffer, 1, 64, f);
+	x += fread(buffer + 64, 1, s.st_size - 64, f);
 	if (x != s.st_size) {
 		printf("Coundn't read file\n");
 		return 0;
@@ -61,7 +62,7 @@ int sys_load_app(char *filename) {
 	}
 
 	if (!ret) {
-		printf("return: %d\n", linker_exec(buffer, &i));
+		printf("return: %lX\n", linker_exec(buffer, &i));
 	}
 
 	return 0;

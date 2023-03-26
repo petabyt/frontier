@@ -6,6 +6,10 @@
 
 uint32_t *screen;
 
+void bmp_handle_input() {
+	CNFGHandleInput();
+}
+
 int bmp_render() {
 	CNFGUpdateScreenWithBitmap(screen, SCREEN_WIDTH, SCREEN_HEIGHT);
 	//CNFGSwapBuffers();

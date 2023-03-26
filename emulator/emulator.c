@@ -33,6 +33,13 @@ void barf(uc_engine *uc) {
 	char buffer[512];
 	sprintf(buffer, "arm-none-eabi-addr2line -e %s %X", "os.elf", (uint32_t)reg);
 	int err = system(buffer);
+	if (err) {
+		puts("addr2line err");
+	}
+
+	uint32_t intbuf;
+	uc_mem_read(uc, reg, &intbuf, 4);
+	printf("val: %X\n", intbuf);
 
 	puts("from");
 
@@ -40,6 +47,9 @@ void barf(uc_engine *uc) {
 	printf("LR: %08X\n", reg);
 	sprintf(buffer, "arm-none-eabi-addr2line -e %s %X", "os.elf", (uint32_t)reg);
 	err = system(buffer);
+	if (err) {
+		puts("addr2line err");
+	}
 
 	for (int i = 0; i < 10; i++) {
 		uc_reg_read(uc, UC_ARM_REG_R0 + i, &reg);
@@ -63,16 +73,16 @@ uint64_t mmio_reads(uc_engine *uc, uint64_t offset, unsigned size, void *user_da
 	case 8:
 		return alloc_start;
 	case 0xc:
-		CNFGHandleInput();
+		bmp_handle_input();
 		return keys.last_key;
 	case 0x10:
-		CNFGHandleInput();
+		bmp_handle_input();
 		return keys.mouse_down;
 	case 0x14:
-		CNFGHandleInput();
+		bmp_handle_input();
 		return keys.mouse_x;
 	case 0x18:
-		CNFGHandleInput();
+		bmp_handle_input();
 		return keys.mouse_y;
 	case 0x1c:
 		return io_regs.r0;
@@ -210,7 +220,8 @@ int emulator(char *filename) {
 	int length = ftell(f);
 	fseek(f, 0, SEEK_SET);
 	char *buffer = malloc(length);
-	fread(buffer, length, 1, f);
+	int rc = fread(buffer, length, 1, f);
+	if (rc == 0) exit(1);
 	fclose(f);
 	err = uc_mem_write(uc, E_ADDRESS, buffer, length);
 	free(buffer);
@@ -229,7 +240,7 @@ int emulator(char *filename) {
 	alloc_start -= (reg % 0x8);
 
 	// Set up IO regions
-	err = uc_mmio_map(uc, 0x40000000, 4096*1000, mmio_reads, NULL,
+	err = uc_mmio_map(uc, 0x40000000, 4096 * 1000, mmio_reads, NULL,
 		mmio_writes, NULL);
 	if (err != UC_ERR_OK) {
 		puts("MMIO map error 0x4*-0x5*");
@@ -242,10 +253,13 @@ int emulator(char *filename) {
 		return 1;
 	}
 
-	err = uc_emu_start(uc, E_ADDRESS, E_RAM, 0, 0);
+	err = uc_emu_start(uc, E_ADDRESS, E_RAM + E_ADDRESS, 0, 0);
 	if (err) {
 		printf("Emulation failed: %u %s\n", err, uc_strerror(err));
 		barf(uc);
+	} else {
+		barf(uc);
+		puts("Success");
 	}
 	
 	uc_close(uc);

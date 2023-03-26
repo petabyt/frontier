@@ -1,9 +1,11 @@
 #ifndef F_H
 #define F_H
+#include <stdint.h>
 
 // Frontier kernel functions
 
 extern int sys_mem_in_use;
+extern int sys_mem_available;
 
 void sys_dump();
 void sys_init_bmp();
@@ -15,5 +17,7 @@ void uart_log(char *format, ...);
 
 int sys_check_mouse();
 int sys_check_key(int key);
+
+int sys_segment(void *start, uint32_t length);
 
 #endif

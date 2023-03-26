@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <elf.h>
+#include <asm.h>
 #include <linker.h>
 #include <sym.h>
 
@@ -34,8 +35,6 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 
 	// To target (text)
 	struct ElfSectHeader32 *target = get_elf_head(file, s->info);
-
-	void *base = file + target->offset;
 
 	// To symtab
 	struct ElfSym32 *syms = (struct ElfSym32 *)(file + l->offset);
@@ -67,19 +66,20 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 				asm_gen_call(target_loc, file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset);
 			} break;
 		case R_ARM_ABS32:
-			*target_loc += file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
+			*target_loc += (uintptr_t)file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
 			break;
 		case R_ARM_REL32:
 			*target_loc += (get_elf_head(file, syms[index].shndx)->offset) - (target->offset + relocs[i].offset);
 			break;
 		case R_ARM_MOVW_ABS_NC:
 		case R_ARM_MOVT_ABS: {
-			uintptr_t offset = file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
+			uintptr_t offset = (uintptr_t)file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
 
 			if (type == R_ARM_MOVT_ABS) {
 				offset >>= 16;
 			}
 
+			// TODO: instruction to generate movw/movt
 			*target_loc &= 0xfff0f000;
 			*target_loc |= ((offset & 0xf000) << 4) | (offset & 0x0fff);
 		}
@@ -100,12 +100,6 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 		linker_error2 = NULL;
 		return 1;
 	}
-	
-	// Read program table header entries
-	for (int i = 0; i < h->phnum; i++) {
-		struct ElfProgHeader32 *p = (struct ElfProgHeader32 *)
-			(file + h->phoff + (i * h->phentsize));
-	}
 
 	struct ElfSectHeader32 *names = (struct ElfSectHeader32 *)
 				(file + h->shoff + (h->shstrndx * h->shentsize));
@@ -115,16 +109,6 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 			(file + h->shoff + (i * h->shentsize));
 
 		char *sect_name = (char *)file + names->offset + s->name;
-
-		if (s->link != 0) {
-			struct ElfSectHeader32 *s2 = (struct ElfSectHeader32 *)
-				(file + h->shoff + (s->link * h->shentsize));
-		}
-
-		if (s->info != 0) {
-			struct ElfSectHeader32 *s2 = (struct ElfSectHeader32 *)
-				(file + h->shoff + (s->info * h->shentsize));
-		}
 
 		if (s->type == SHT_PROGBITS) {
 			info->max_exec_size += s->size;
@@ -142,7 +126,7 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 			info->strtab_of = of;
 		} else if (!strcmp(sect_name, ".bss")) {
 			if (s->size > 0 && s->addr == 0) {
-				s->offset = malloc(s->size);
+				s->offset = (uint32_t)malloc(s->size);
 			}
 			memset(file + s->offset, 0, s->size);
 		}
@@ -173,12 +157,12 @@ uintptr_t linker_get_symbol(void *file, struct ElfFileInfo *info, char *name) {
 		}
 	}
 
-	return NULL;
+	return 0;
 }
 
 uint32_t linker_exec(void *file, struct ElfFileInfo *info) {
 	uintptr_t main = linker_get_symbol(file, info, "main");
-	if (main == NULL) {
+	if (main == 0) {
 		printf("main() not found\n");
 		return 1;
 	}

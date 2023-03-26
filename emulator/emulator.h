@@ -1,3 +1,6 @@
+#ifndef _EMU_H
+#define _EMU_H
+
 int emulator(char *filename);
 
 struct Keys {
@@ -8,3 +11,5 @@ struct Keys {
 };
 
 extern struct Keys keys;
+
+#endif

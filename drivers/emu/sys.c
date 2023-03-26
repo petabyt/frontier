@@ -59,10 +59,11 @@ void sys_dump() {
 	syscall(SYS_BARF);
 }
 
-int sys_segment(uintptr_t start, uint32_t length) {
-	((uintptr_t *)SYS_R0)[0] = start;
-	((uint32_t *)SYS_R0)[1] = start;
+int sys_segment(void *start, uint32_t length) {
+	((uintptr_t *)SYS_R0)[0] = (uintptr_t)start;
+	((uint32_t *)SYS_R0)[1] = length;
 	syscall(SYS_SEGMENT);
+	return 0;
 }
 
 int sys_get_ticks() {

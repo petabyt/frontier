@@ -34,12 +34,16 @@ int _write(int fd, void *buf, int bytes) {
 	return ((int *)SYS_READ_REGS)[0];
 }
 
-int _read(int fd, void *buf, int bytes) {
-	((int *)SYS_REGS)[0] = fd;
-	((uintptr_t *)SYS_REGS)[1] = (uintptr_t)buf;
-	((int *)SYS_REGS)[2] = bytes;
+size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+	((int *)SYS_REGS)[0] = fileno(stream);
+	((uintptr_t *)SYS_REGS)[1] = (uintptr_t)ptr;
+	((int *)SYS_REGS)[2] = (nmemb * size);
 	syscall(SYS_FREAD);
-	return ((int *)SYS_READ_REGS)[0];
+	return ((int *)SYS_READ_REGS)[0];	
+}
+
+int _read(int fd, void *buf, int bytes) {
+	return -1;
 }
 
 int _close(int fd) {

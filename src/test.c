@@ -17,4 +17,6 @@ int sys_fast_self_test() {
 	if (n != 8) {
 		return 1;
 	}
+
+	return 0;
 }

@@ -3,6 +3,8 @@
 #include <pack.h>
 #include <emulator.h>
 
+#include "../mjs/src/frozen/frozen.h"
+
 int help() {
 	printf(
 		"Frontier build system utility\n"

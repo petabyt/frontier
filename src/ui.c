@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string.h>
 
 #include <bmp.h>
 
@@ -26,6 +27,7 @@ struct UiDimensions {
 
 int ui_reset() {
 	memset(&ui, 0, sizeof(ui));
+	return 0;
 }
 
 void ui_draw_container(int x, int y, int width, int height, int color) {
@@ -78,5 +80,5 @@ void ui_end_container() {
 }
 
 int ui_render() {
-	
+	return 0;
 }
