@@ -30,7 +30,7 @@ int ui_reset() {
 	return 0;
 }
 
-void ui_draw_container(int x, int y, int width, int height, int color) {
+void ui_container(int x, int y, int width, int height, int color) {
 	if (x == 0) {
 		x = ui.x[ui.cur];
 	}
@@ -63,7 +63,7 @@ void ui_draw_container(int x, int y, int width, int height, int color) {
 	ui.i[ui.cur] = 0;
 }
 
-void ui_draw_text(char *text, int color) {
+void ui_text(char *text, int color) {
 	if (ui.i[ui.cur] == 0) {
 		ui.x[ui.cur] += 7;
 		ui.y[ui.cur] += 7;
@@ -72,7 +72,7 @@ void ui_draw_text(char *text, int color) {
 		ui.y[ui.cur] += 20;
 	}
 
-	font_print_string(ui.x[ui.cur], ui.y[ui.cur], text, color);
+	bmp_string(ui.x[ui.cur], ui.y[ui.cur], text, color);
 }
 
 void ui_end_container() {

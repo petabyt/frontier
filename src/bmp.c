@@ -3,6 +3,12 @@
 
 #include <font.h>
 
+struct FontConfig {
+	int size;
+}font_conf = {
+	2,
+};
+
 void bmp_fill_rect(int x1, int y1, int x2, int y2, uint32_t rgb) {
 	x2 += x1;
 	y2 += y1;
@@ -13,7 +19,7 @@ void bmp_fill_rect(int x1, int y1, int x2, int y2, uint32_t rgb) {
 	}
 }
 
-int font_print_char(int x, int y, char c, int color) {
+int bmp_char(int x, int y, char c, int color) {
 	// Loop to "null terminator character"
 	int match = 0;
 	for (int l = 0; font[l].letter != 0; l++) {
@@ -24,7 +30,7 @@ int font_print_char(int x, int y, char c, int color) {
 	}
 
 	if (c == 'p' || c == 'g' || c == 'j') {
-		y += 1;
+		y += font_conf.size;
 	}
 
 	// Loop through 7 high 5 wide monochrome font
@@ -32,8 +38,12 @@ int font_print_char(int x, int y, char c, int color) {
 	for (int py = 0; py < 7; py++) {
 		for (int px = 0; px < 5; px++) {
 			if (font[match].code[py][px] == '#') {
-				//bmp_fill_rect((x + px + 1) * 2, (y + py) * 2, 1, 2, 0x999999);
-				bmp_fill_rect((x + px) * 2, (y + py) * 2, 2, 2, color);
+				if (font_conf.size == 1) {
+					bmp_pixel(x + px, y + py, color);
+				} else {
+					bmp_fill_rect((x + px) * font_conf.size, (y + py) * font_conf.size,
+						font_conf.size, font_conf.size, color);
+				}
 
 				// Dynamix width character spacing
 				if (px > maxLength) {
@@ -46,22 +56,26 @@ int font_print_char(int x, int y, char c, int color) {
 	return maxLength;
 }
 
-int font_print_string(int x, int y, char *string, int color) {
+int bmp_string(int x, int y, char *string, int color) {
 	int cx = x;
 	int cy = y;
 
-	cy /= 2;
-	cx /= 2;
+	// for x2 size
+	cy /= font_conf.size;
+	cx /= font_conf.size;
 
 	for (int c = 0; string[c] != '\0'; c++) {
-		int length;
-		if (string[c] == ' ') {
-			length = 5;
-		} else {
-			length = font_print_char(cx, cy, string[c], color) + 3;
+		if (string[c] == '\n') {
+			cx = x / font_conf.size;
+			cy += 7 + font_conf.size;
+			continue;
 		}
 
-		cx += length;
+		if (string[c] == ' ') {
+			cx += 5;
+		} else {
+			cx += bmp_char(cx, cy, string[c], color) + 3;
+		}
 	}
 
 	return cy;
