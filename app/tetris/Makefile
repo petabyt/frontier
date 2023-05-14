@@ -1,10 +1,13 @@
+TOPL?=../../
 NAME=tetris
 all: $(NAME).elf
-TOPL?=../../
 include $(TOPL)/common.mk
 
-ARMCFLAGS=-c -I$(TOPL)/src/ -O4 -mcpu=cortex-a7
+ARMCFLAGS=-c -I$(TOPL)/src/ -O2 -g -fno-builtin -mcpu=cortex-a5
 FILES=main.o
 
-$(NAME).elf: $(FILES) ptetris.h
+main.o: ptetris.h
+
+$(NAME).elf: $(FILES)
 	$(ARMCC)-ld -r $(FILES) -o $(NAME).elf
+

@@ -7,9 +7,8 @@
 #include <sys.h>
 #include <bmp.h>
 #include <linker.h>
-#include <buttons.h>
-#include <js.h>
 #include <sym.h>
+#include <ui.h>
 
 void *alloc_file(char *filename) {
 	struct stat s;
@@ -52,6 +51,8 @@ int sys_load_app(char *filename) {
 
 	struct ElfFileInfo i;
 
+	printf("Linking @ %X\n", buffer);
+
 	int ret = linker_init_elf(buffer, &i);
 	if (linker_error1 != NULL) {
 		if (linker_error2 == NULL) {
@@ -61,6 +62,8 @@ int sys_load_app(char *filename) {
 		}
 	}
 
+	linker_scan_symbols(buffer, &i);
+
 	if (!ret) {
 		printf("return: %lX\n", linker_exec(buffer, &i));
 	}
@@ -68,18 +71,40 @@ int sys_load_app(char *filename) {
 	return 0;
 }
 
-//int strcasecmp(const char *a, const char *b) { return strcasecmp(a, b); }
-//int strncasecmp(const char *a, const char *b, size_t c) { return strncasecmp(a, b, c); }
+int main_menu() {
+	ui_text("FrontierOS / Fujihack software demo", 0xffffff);
 
-int uart_welcome();
-void uart_prompt();
+	if (ui_button("Render an image")) {
+		extern char settings_bmp[];
+		bmp_render_bmp(settings_bmp, 200, 200);
+	}
+
+	if (ui_button("Load ELF module")) {
+		sys_load_app("app/tetris/tetris.elf");
+	}
+
+	return 0;
+}
 
 int entry() {
 	sys_init_syms();
 	sys_init_mem();
-	js_init();
 
-	sys_load_app("app/hello/hello.elf");
+	ui_reset();
+	sys_init_bmp();
+
+	bmp_clear(0x0);
+
+	sys_load_app("app/tetris/tetris.elf");
+
+return 1;
+	while (1) {
+		if (ui_frame(main_menu)) {
+			return 0;
+		}
+
+		msleep(50);
+	}	
 
 	return 0;
 }

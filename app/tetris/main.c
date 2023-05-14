@@ -19,8 +19,8 @@ uint32_t pt_colors[6] = {
 	0x58B500,
 };
 
-#define PT_MAX_WIDTH 40
-#define PT_MAX_HEIGHT 40
+// #define PT_MAX_WIDTH 40
+// #define PT_MAX_HEIGHT 40
 
 #include "ptetris.h"
 
@@ -49,8 +49,10 @@ int main() {
 			msleep(50);
 		} else if (sys_check_key(SYS_BUTTON_RIGHT)) {
 			pt_handle_input(PT_RIGHT);
+			msleep(50);
 		} else if (sys_check_key(SYS_BUTTON_LEFT)) {
 			pt_handle_input(PT_LEFT);
+			msleep(50);
 		} else if (sys_check_key(SYS_BUTTON_QUIT)) {
 			return 0;
 		} else {
@@ -61,7 +63,9 @@ int main() {
 		e:;
 		pt_render();
 		bmp_apply();
+		//msleep(400);
 	}
 
 	return 0;
 }
+

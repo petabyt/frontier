@@ -1,4 +1,8 @@
-// Frontier ELF Linker
+// Frontier 32 bit ELF Linker
+
+/*
+TODO: This doesn't seem to work with .LANCHOR, need to do more research
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,6 +33,7 @@ char *elf_head_name(void *file, uint32_t i) {
 	return (char *)file + names->offset + i;
 }
 
+// Link all symbols in a section
 int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32 *s) {
 	// To relocation list (.rel.text)
 	struct ElfSectHeader32 *l = get_elf_head(file, s->link);
@@ -50,11 +55,23 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 
 		char *name = (char *)(file + str->offset + syms[index].name);
 		uint32_t *target_loc = (void *)(file + target->offset + relocs[i].offset);
+
+		// Allocate NOBITS sections only once, switch to PROGBITS
+		struct ElfSectHeader32 *reloc_sect = get_elf_head(file, syms[index].shndx);
+		if (reloc_sect->type == SHT_NOBITS) {
+			if (reloc_sect->size > 0 && s->addr == 0) {
+				puts("Allocating space in BSS");
+				reloc_sect->offset = (uint32_t)malloc(reloc_sect->size);
+				memset(file + reloc_sect->offset, 0, reloc_sect->size);
+				reloc_sect->type = SHT_PROGBITS;
+			}
+		}
 		
 		switch (type) {
 		case R_ARM_CALL:
 			if (syms[index].value == 0 && syms[index].shndx == 0) {
-				void *call = sym(NULL, name);
+				void *call = ml_sym(name);
+				if (call == NULL) call = sym(NULL, name);
 				if (call == NULL) {
 					printf("Undefined external function %s\n", name);
 					linker_error1 = linker_undefined_sym;
@@ -73,7 +90,19 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 			break;
 		case R_ARM_MOVW_ABS_NC:
 		case R_ARM_MOVT_ABS: {
-			uintptr_t offset = (uintptr_t)file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
+			uintptr_t offset = 0;
+			// Allocate common undefined (like BSS)
+			if (syms[index].shndx >= SHN_LOPROC) {
+				// TODO: Fix this hack
+				if (syms[index].shndx == SHN_COMMON && syms[index].value < 100) {
+					syms[index].value = malloc(syms[index].size);
+					memset(syms[index].value, 0, syms[index].size);
+				}
+
+				offset = syms[index].value;
+			} else {
+				offset = (uintptr_t)file + syms[index].value + (get_elf_head(file, syms[index].shndx)->offset);
+			}
 
 			if (type == R_ARM_MOVT_ABS) {
 				offset >>= 16;
@@ -82,8 +111,9 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 			// TODO: instruction to generate movw/movt
 			*target_loc &= 0xfff0f000;
 			*target_loc |= ((offset & 0xf000) << 4) | (offset & 0x0fff);
-		}
-		break;
+			} break;
+		default:
+			printf("Unknown relocation: %d\n", type);
 		}
 	}
 
@@ -125,15 +155,36 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 		} else if (!strcmp(sect_name, ".strtab")) {
 			info->strtab_of = of;
 		} else if (!strcmp(sect_name, ".bss")) {
-			if (s->size > 0 && s->addr == 0) {
-				s->offset = (uint32_t)malloc(s->size);
-			}
-			memset(file + s->offset, 0, s->size);
+			// if (s->size > 0 && s->addr == 0) {
+				// s->offset = (uint32_t)malloc(s->size);
+			// }
+			// memset(file + s->offset, 0, s->size);
 		}
 	}
 
 	linker_error1 = linker_ok;
 	linker_error2 = NULL;
+
+	return 0;
+}
+
+uintptr_t linker_scan_symbols(void *file, struct ElfFileInfo *info) {
+	struct ElfSectHeader32 *symtab = (struct ElfSectHeader32 *)(file + info->symtab_of);
+	struct ElfSectHeader32 *strtab = (struct ElfSectHeader32 *)(file + info->strtab_of);
+
+	int length = symtab->size / symtab->entsize;
+
+	for (int i = 0; i < length; i++) {
+		struct ElfSym32 *sym = (struct ElfSym32 *)(file + symtab->offset + (sizeof(struct ElfSym32) * i));
+		if (sym->name != 0) {
+			char *curr = (char *)file + strtab->offset + sym->name;
+			if (!strcmp(curr, "main") || !strcmp(curr, "panic")) continue;
+			if (sym->shndx != 0 && sym->size != 0) {
+				struct ElfSectHeader32 *l = get_elf_head(file, sym->shndx);
+				//sym_new(curr, l->offset + sym->value);
+			}
+		}
+	}
 
 	return 0;
 }

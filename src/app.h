@@ -1,6 +1,8 @@
+#ifndef APP_H
+#define APP_H
 #pragma pack(push, 1)
 
-
+#include <stdint.h>
 
 struct AppMetaData {
 	uint8_t magic1;
@@ -14,3 +16,4 @@ struct AppMetaData {
 };
 
 #pragma pack(pop)
+#endif

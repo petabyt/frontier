@@ -1,6 +1,11 @@
 mod f;
 
 #[no_mangle]
+pub fn hello_world() -> u32 {
+	return 69;
+}
+
+#[no_mangle]
 pub fn main() -> u32 {
 	f::puts("Hello rust world");
 
@@ -10,5 +15,5 @@ pub fn main() -> u32 {
 		i = i + 1;
 	}
 
-return 123;
+	return 123;
 }

@@ -14,6 +14,7 @@
 #define ELF_CORE 4
 
 #define SHT_PROGBITS 1
+#define SHT_NOBITS 8
 #define SHT_REL 9
 
 #define PT_NULL 0

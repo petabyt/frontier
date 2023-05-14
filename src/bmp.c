@@ -78,76 +78,59 @@ int bmp_string(int x, int y, char *string, int color) {
 		}
 	}
 
-	return cy;
+	return cx;
 }
 
-int bmp_draw_ppm(void *data, int x, int y) {
-	//sscanf()
+typedef int bmp_shader(int r, int g, int b);
 
-	int curr = 0;
-	for (int i = 0; i < 4; i++) {
-		char buffer[128];
-		int c;
-		for (c = 0; ((char *)data)[curr] != '\n'; c++) {
-			buffer[c] = ((char *)data)[curr]; 
-			curr++;
+int bmp_render_bmp_shader(void* data, int x, int y, bmp_shader *shader) {
+	// BMP metadata is variable, has no definitive header
+	uint32_t width = *(uint32_t*)((uint8_t*)data + 18);
+	uint32_t height = *(uint32_t*)((uint8_t*)data + 22);
+
+	uint32_t bytes_per_pixel = *(uint16_t*)((uint8_t*)data + 28) / 8;
+	uint32_t padding_bytes_per_row = (4 - (width * bytes_per_pixel) % 4) % 4;
+
+	uint32_t row_start = height - 1;
+	for (int i = 0; i < height; i++) {
+		uint8_t* row_data = (uint8_t*)data + *(uint32_t*)((uint8_t*)data + 10)
+			+ (row_start * (width * bytes_per_pixel + padding_bytes_per_row));
+
+		for (int j = 0; j < width; j++) {
+			uint32_t pixel_offset = j * bytes_per_pixel;
+
+			uint8_t blue = *(row_data + pixel_offset);
+			uint8_t green = *(row_data + pixel_offset + 1);
+			uint8_t red = *(row_data + pixel_offset + 2);
+
+			uint32_t color;
+			if (shader == 0) {
+				color = (red << 16) | (green << 8) | blue;
+			} else {
+				color = shader(red, green, blue);
+			}
+
+			bmp_pixel(x + j, y + i, color);
 		}
 
-		buffer[c] = '\0';
-
-		printf("%s\n", buffer);
-
-		curr++;
+		row_start--;
 	}
 
-	int x2 = 0;
-	int y2 = 0;
-	while (curr <= 400 * 359 * 3) {
-		uint32_t col = 0;
-		col |= ((uint8_t *)data)[curr + 2];
-		col |= ((uint8_t *)data)[curr + 1] << 8;
-		col |= ((uint8_t *)data)[curr + 0] << 16;
-		curr += 3;
-
-		bmp_pixel(x + x2,  y + y2, col);
-
-        x2++;
-        if (x2 == 400) {
-            x2 = 0;
-            y2++;
-        }
-
-	}
-
-	bmp_apply();
+	return width;
 }
 
-void bmp_render_bmp(void* data, int x, int y) {
-    uint32_t width = *(uint32_t*)((uint8_t*)data + 18);
-    uint32_t height = *(uint32_t*)((uint8_t*)data + 22);
+int bmp_render_bmp(void* data, int x, int y) {
+	return bmp_render_bmp_shader(data, x, y, 0);
+}
 
-    uint32_t bytes_per_pixel = *(uint16_t*)((uint8_t*)data + 28) / 8;
-    uint32_t padding_bytes_per_row = (4 - (width * bytes_per_pixel) % 4) % 4;
+int bmp_blue_shade(int r, int g, int b) {
+	if (r == 0 && g == 0 && b == 0) {
+		return (r << 16) | (g << 8) | (b + 100);
+	} else {
+		return (r << 16) | (g << 8) | b;
+	}
+}
 
-    uint32_t row_start = height - 1;
-    for (int i = 0; i < height; i++) {
-        uint8_t* row_data = (uint8_t*)data + *(uint32_t*)((uint8_t*)data + 10)
-        	+ (row_start * (width * bytes_per_pixel + padding_bytes_per_row));
-
-        for (int j = 0; j < width; j++) {
-            uint32_t pixel_offset = j * bytes_per_pixel;
-
-            uint8_t blue = *(row_data + pixel_offset);
-            uint8_t green = *(row_data + pixel_offset + 1);
-            uint8_t red = *(row_data + pixel_offset + 2);
-
-            uint32_t color = (red << 16) | (green << 8) | blue;
-
-            bmp_pixel(x + j, y + i, color);
-        }
-
-        row_start--;
-    }
-
-    bmp_apply();
+int bmp_render_bmp_selected(void* data, int x, int y) {
+	return bmp_render_bmp_shader(data, x, y, bmp_blue_shade);
 }

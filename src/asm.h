@@ -1,6 +1,6 @@
 // Dangerous patching and crashing macros for hardcore debugging
-#ifndef HIJACK_H
-#define HIJACK_H
+#ifndef ASM_H
+#define ASM_H
 
 #include <stdint.h>
 

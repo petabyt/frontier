@@ -9,7 +9,8 @@ void bmp_pixel(int x, int y, uint32_t rgb);
 int bmp_screen_height();
 int bmp_screen_width();
 
-int font_print_char(int x, int y, char c, int color);
-int font_print_string(int x, int y, char *string, int color);
+int bmp_char(int x, int y, char c, int color);
+int bmp_string(int x, int y, char *string, int color);
+int bmp_render_bmp(void* data, int x, int y);
 
 #endif

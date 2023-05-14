@@ -7,7 +7,7 @@
 
 void syscall(int v);
 
-int _fstat(FILE *fd, void *stat) {
+int _fstat(int fd, void *stat) {
 	return 0;
 }
 

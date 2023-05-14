@@ -4,9 +4,12 @@
 #include "emu.h"
 
 void syscall(int v);
+static uint8_t bmp_status = 0;
 
 void sys_init_bmp() {
+	if (bmp_status) { return; }
 	syscall(SYS_SETUP_BMP);
+	bmp_status = 1;
 }
 
 int bmp_screen_width() {

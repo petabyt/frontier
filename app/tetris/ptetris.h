@@ -240,8 +240,7 @@ void pt_merge() {
 	for (int x = 0; x < 4; x++) {
 		for (int y = 0; y < 4; y++) {
 			if (pt_blocks.b[pt_blocks.curr][x][y] == 0) continue;
-			pt_main_field.b[x + pt_blocks.x][y + pt_blocks.y]
-				= pt_blocks.b[pt_blocks.curr][x][y];
+			pt_main_field.b[x + pt_blocks.x][y + pt_blocks.y] = pt_blocks.b[pt_blocks.curr][x][y];
 		}
 	}	
 }

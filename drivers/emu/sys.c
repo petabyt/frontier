@@ -3,8 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <buttons.h>
-
+#include <sys.h>
 #include "emu.h"
 
 void syscall(int v);
@@ -74,7 +73,7 @@ void uart_char(char c) {
 	((char *)UART_OUT_CHAR)[0] = c;
 }
 
-void uart_str(const char *string) {
+void uart_str(char *string) {
 	while (*string != '\0') {
 		uart_char(*string);
 		string++;
@@ -95,12 +94,12 @@ int printf(const char *format, ...) {
 }
 
 int puts(const char *x) {
-	uart_str(x);
+	uart_str((char *)x);
 	uart_char('\n');
 	return 0;
 }
 
-int getchar() {
+int sys_getchar() {
 	return ((int *)SYS_GET_CHAR)[0];
 }
 
