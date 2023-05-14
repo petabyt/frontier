@@ -26,7 +26,7 @@ int prompt_line() {
 		if (c == '\n') {
 			buffer[curr] = '\0';
 
-			puts(js_run(buffer));
+			puts(buffer);
 			return 0;
 		}
 

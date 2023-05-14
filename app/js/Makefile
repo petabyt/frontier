@@ -1,10 +1,9 @@
-NAME=hello
+NAME=js
 all: $(NAME).elf
 TOPL?=../../
 include $(TOPL)/common.mk
 
-FILES=rust.o
-#ARMCFLAGS=-c -I$(F)/src/ -O4 -mcpu=cortex-a7
+#FILES=rust.o
 
 $(NAME).elf: $(FILES)
 	$(ARMCC)-ld -r $(FILES) -o $(NAME).elf

@@ -15,7 +15,8 @@ RUSTC?=rustc
 RARCH=armv7-unknown-linux-gnueabi
 RFLAGS=-C opt-level=2 --target $(RARCH) --emit obj --crate-type rlib
 %.o: %.rs $(EXTERN_DEPS) $(wildcard *.rs)
-	$(RUSTC) $(RFLAGS) $< -o $@
+	$(RUSTC) $(RFLAGS) $< -o $@	
 
 clean:
-	$(RM) src/*.o drivers/emu/*.o emulator/*.o *.o *.elf *.bin *.out dump
+	$(RM) $(TOPL)/src/*.o $(TOPL)/drivers/emu/*.o $(TOPL)/emulator/*.o $(TOPL)/*.o \
+		$(TOPL)/*.elf $(TOPL)/*.bin $(TOPL)/*.out $(TOPL)/dump

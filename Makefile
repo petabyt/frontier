@@ -29,7 +29,7 @@ EMU_FILES=$(patsubst %, drivers/emu/%, mem.o sys.o bmp.o io.o)
 endif
 
 SRC_FILES=src/boot.o src/bmp.o src/ui.o src/linker.o src/test.o src/ml.o
-SRC_FILES+=src/main.o src/cpu.o src/sym.o src/asm.o src/data.o src/uart.o src/js.o
+SRC_FILES+=src/main.o src/cpu.o src/sym.o src/asm.o src/data.o src/uart.o
 FILES=$(SRC_FILES) $(EMU_FILES)
 
 # Depend on header files
@@ -37,8 +37,8 @@ $(EMU_FILES): $(wildcard drivers/emu/*.h)
 $(SRC_FILES): $(wildcard src/*.h)
 
 # mJS support
-FILES+=mjs/mjs.o
-ARMCFLAGS+=-Imjs/ -Imjs/src
+#FILES+=mjs/mjs.o
+#ARMCFLAGS+=-Imjs/ -Imjs/src
 
 ifeq ($(ARCH),emu)
 build-util:
