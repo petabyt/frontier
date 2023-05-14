@@ -81,8 +81,8 @@ void log_cpu_info(uint32_t i) {
 	printf("Impl: %s\n", impl_str);
 	printf("Arch: %s\n", arch_str);
 
-	printf("Part number: %X\n", REGBITS(i, 15, 4));
-	printf("Revision: %X\n", REGBITS(i, 3, 0));
+	printf("Part number: %lX\n", REGBITS(i, 15, 4));
+	printf("Revision: %lX\n", REGBITS(i, 3, 0));
 }
 
 

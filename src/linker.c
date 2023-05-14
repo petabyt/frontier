@@ -95,8 +95,8 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 			if (syms[index].shndx >= SHN_LOPROC) {
 				// TODO: Fix this hack
 				if (syms[index].shndx == SHN_COMMON && syms[index].value < 100) {
-					syms[index].value = malloc(syms[index].size);
-					memset(syms[index].value, 0, syms[index].size);
+					syms[index].value = (uint32_t)malloc(syms[index].size);
+					memset((void *)syms[index].value, 0, syms[index].size);
 				}
 
 				offset = syms[index].value;
@@ -181,7 +181,7 @@ uintptr_t linker_scan_symbols(void *file, struct ElfFileInfo *info) {
 			if (!strcmp(curr, "main") || !strcmp(curr, "panic")) continue;
 			if (sym->shndx != 0 && sym->size != 0) {
 				struct ElfSectHeader32 *l = get_elf_head(file, sym->shndx);
-				//sym_new(curr, l->offset + sym->value);
+				sym_new(curr, l->offset + sym->value);
 			}
 		}
 	}

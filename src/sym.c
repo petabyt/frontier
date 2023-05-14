@@ -1,5 +1,4 @@
 // Global runtime symbol mananger
-
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
@@ -40,7 +39,7 @@ int table_size(int i) {
 }
 
 int sym_new(char *name, uint32_t value) {
-	printf("New sym %s\n", name);
+	//printf("New sym %s\n", name);
 	int length = table_size(global_syms_length - 1);
 
 	// Allocate a new table if necessary

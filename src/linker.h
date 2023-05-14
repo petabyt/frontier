@@ -16,10 +16,11 @@ enum LinkerErrors {
 };
 
 int linker_init_elf(void *file, struct ElfFileInfo *info);
-uint32_t elf_get_sect_size(void *file, uint32_t of);
-struct ElfSectHeader32 *get_elf_head(void *file, uint32_t i);
-char *elf_head_name(void *file, uint32_t i);
 uintptr_t linker_get_symbol(void *file, struct ElfFileInfo *info, char *name);
 uint32_t linker_exec(void *file, struct ElfFileInfo *info);
+uintptr_t linker_scan_symbols(void *file, struct ElfFileInfo *info);
+
+// Get Magic Lantern compatible symbol
+void *ml_sym(char *name);
 
 #endif

@@ -51,8 +51,6 @@ int sys_load_app(char *filename) {
 
 	struct ElfFileInfo i;
 
-	printf("Linking @ %X\n", buffer);
-
 	int ret = linker_init_elf(buffer, &i);
 	if (linker_error1 != NULL) {
 		if (linker_error2 == NULL) {
@@ -95,9 +93,6 @@ int entry() {
 
 	bmp_clear(0x0);
 
-	sys_load_app("app/tetris/tetris.elf");
-
-return 1;
 	while (1) {
 		if (ui_frame(main_menu)) {
 			return 0;

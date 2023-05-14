@@ -26,8 +26,10 @@ void uart_log(char *format, ...);
 int sys_check_mouse();
 int sys_check_key(int key);
 
-int sys_segment(void *start, uint32_t length);
+void msleep(int ms);
 
+// Temporary memory segmentation and paging
+int sys_segment(void *start, uint32_t length);
 int sys_map_mem(void *start, uint32_t length, int type);
 
 #endif
