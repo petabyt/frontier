@@ -1,11 +1,16 @@
-char error_buffer[64];
+// perror equivelants
+#include <stdio.h>
+#include <stdarg.h>
 
-char *errstr = NULL;
+static char error_buffer[128];
 
-int sys_report_err(char *string) {
-	errstr = string;
+void sys_report_err(const char* format, ...) {
+	va_list args;
+	va_start(args, format);
+	vsnprintf(error_buffer, sizeof(error_buffer), format, args);
+	va_end(args);
 }
 
 char *sys_get_error() {
-	return errstr;
+	return error_buffer;
 }

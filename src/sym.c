@@ -39,7 +39,6 @@ int table_size(int i) {
 }
 
 int sym_new(char *name, uint32_t value) {
-	//printf("New sym %s\n", name);
 	int length = table_size(global_syms_length - 1);
 
 	// Allocate a new table if necessary
@@ -67,8 +66,7 @@ int sys_init_syms() {
 	return 0;
 }
 
-// TODO: remove handle
-void *sym(void *handle, const char *name) {
+void *sym(const char *name) {
 	for (int i = 0; i < global_syms_length; i++) {
 		int of = 0;
 		uintptr_t table = global_syms[i].table;

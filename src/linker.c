@@ -8,18 +8,10 @@ TODO: This doesn't seem to work with .LANCHOR, need to do more research
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys.h>
 #include <elf.h>
 #include <asm.h>
 #include <linker.h>
-#include <sym.h>
-
-char *linker_ok = "Successfully linked";
-char *linker_undefined_sym = "Couldn't find symbol: ";
-char *linker_incompatible = "Binary is incompatible with this sytem";
-char *linker_broken = "File is broken";
-
-char *linker_error1 = NULL;
-char *linker_error2 = NULL;
 
 struct ElfSectHeader32 *get_elf_head(void *file, uint32_t i) {
 	struct ElfHeader32 *h = (struct ElfHeader32 *)file;
@@ -60,7 +52,7 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 		struct ElfSectHeader32 *reloc_sect = get_elf_head(file, syms[index].shndx);
 		if (reloc_sect->type == SHT_NOBITS) {
 			if (reloc_sect->size > 0 && s->addr == 0) {
-				puts("Allocating space in BSS");
+				//puts("Allocating space in BSS");
 				reloc_sect->offset = (uint32_t)malloc(reloc_sect->size);
 				memset(file + reloc_sect->offset, 0, reloc_sect->size);
 				reloc_sect->type = SHT_PROGBITS;
@@ -71,11 +63,10 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 		case R_ARM_CALL:
 			if (syms[index].value == 0 && syms[index].shndx == 0) {
 				void *call = ml_sym(name);
-				if (call == NULL) call = sym(NULL, name);
+				if (call == NULL) call = sym(name);
 				if (call == NULL) {
-					printf("Undefined external function %s\n", name);
-					linker_error1 = linker_undefined_sym;
-					linker_error2 = name;
+					printf("ELF: Undefined sym %s\n", name);
+					sys_report_err("Couldn't find symbol: %s\n", name);
 					return 1;
 				}
 				asm_gen_call(target_loc, call);
@@ -113,7 +104,7 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 			*target_loc |= ((offset & 0xf000) << 4) | (offset & 0x0fff);
 			} break;
 		default:
-			printf("Unknown relocation: %d\n", type);
+			//printf("Unknown relocation: %d\n", type);
 		}
 	}
 
@@ -126,9 +117,13 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 	struct ElfHeader32 *h = (struct ElfHeader32 *)file;
 
 	if (h->magic != ELF_MAGIC) {
-		linker_error1 = linker_broken;
-		linker_error2 = NULL;
+		sys_report_error("File provided is not ELF.");
 		return 1;
+	}
+
+	if (h->bits != ELF_32_BIT || h->machine != ELF_MACHINE_ARM
+			|| h->endian != ELF_LITTLE_ENDIAN) {
+		sys_report_error("File is not compatible.");
 	}
 
 	struct ElfSectHeader32 *names = (struct ElfSectHeader32 *)
@@ -154,16 +149,8 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 			info->symtab_of = of;
 		} else if (!strcmp(sect_name, ".strtab")) {
 			info->strtab_of = of;
-		} else if (!strcmp(sect_name, ".bss")) {
-			// if (s->size > 0 && s->addr == 0) {
-				// s->offset = (uint32_t)malloc(s->size);
-			// }
-			// memset(file + s->offset, 0, s->size);
 		}
 	}
-
-	linker_error1 = linker_ok;
-	linker_error2 = NULL;
 
 	return 0;
 }
