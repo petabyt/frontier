@@ -40,43 +40,77 @@ int ui_reset() {
 	return 0;
 }
 
-int ui_frame(ui_renderer *renderer) {
-	ui_reset();
-	bmp_clear(0);
-
+int ui_process_key() {
 	int key = 0;
 	if (sys_check_key(SYS_BUTTON_QUIT)) {
-		return 1;
+		return SYS_BUTTON_QUIT;
 	} else if (sys_check_key(SYS_BUTTON_DOWN)) {
 		select_y++;
-		key = SYS_BUTTON_DOWN;
-		done = 0;
+		return SYS_BUTTON_DOWN;
+	} else if (sys_check_key(SYS_BUTTON_UP)) {
+		select_y--;
+		return SYS_BUTTON_UP;
 	} else if (sys_check_key(SYS_BUTTON_OK)) {
-		key = SYS_BUTTON_OK;
 		ui.interacted = 1;
-		done = 0;
+		return SYS_BUTTON_OK;
+	} else {
+		return 0;
+	}	
+}
+
+int ui_update(ui_renderer *renderer) {
+	if (renderer() == 1) {
+		return 1;
 	}
 
-	if (done == 0) {
-		renderer();
+	bmp_apply();
+
+	// Redraw if necessary
+	if (select_y >= ui.index_y) {
+		select_y = 0;
+
+		ui_reset();
+
+		if (renderer() == 1) {
+			return 1;
+		}
+
 		bmp_apply();
-		done = 1;
-		if (select_y >= ui.index_y) {
-			select_y = 0;
+	} else if (select_y < 0) {
+		select_y = ui.index_y - 1;
+		ui_reset();
 
-			ui_reset();
-			renderer();
-			bmp_apply();
+		if (renderer() == 1) {
+			return 1;
 		}
-	}
 
-	if (key) {
-		while (sys_check_key(key)) {
-			msleep(5);
-		}
+		//bmp_clear(0);
+
+		bmp_apply();
 	}
 
 	return 0;
+}
+
+int ui_frame(ui_renderer *renderer) {
+	ui_reset();
+
+	int key = ui_process_key();
+	if (key == SYS_BUTTON_QUIT) {
+		return 1;
+	}
+
+	bmp_clear(0);
+	int rc = ui_update(renderer);
+
+	if (key) {
+		// TODO: Scrolling
+		while (sys_check_key(key)) {
+			msleep(1);
+		}
+	}
+
+	return rc;
 }
 
 void ui_container(int x, int y, int width, int height, int color) {

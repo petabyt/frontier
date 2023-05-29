@@ -1,3 +1,4 @@
+// Magic Lantern built-in runtime support
 #include <stdio.h>
 #include <string.h>
 

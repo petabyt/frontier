@@ -8,6 +8,8 @@
 #define ELF_LITTLE_ENDIAN 1
 #define ELF_BIG_ENDIAN 2
 
+#define ELF_MACHINE_ARM 0x28
+
 #define ELF_RELOCATABLE 1
 #define ELF_EXECUTABLE 2
 #define ELF_SHARED 3

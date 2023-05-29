@@ -83,12 +83,9 @@ int sys_load_app(char *filename) {
 	struct ElfFileInfo i;
 
 	int ret = linker_init_elf(buffer, &i);
-	if (linker_error1 != NULL) {
-		if (linker_error2 == NULL) {
-			printf("ELF: %s\n", linker_error1);
-		} else {
-			printf("ELF: %s%s\n", linker_error1, linker_error2);
-		}
+	if (ret) {
+		printf(sys_get_error());
+		return 1;
 	}
 
 	linker_scan_symbols(buffer, &i);

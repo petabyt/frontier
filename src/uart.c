@@ -4,7 +4,6 @@
 
 #include <sys.h>
 #include <js.h>
-#include <sym.h>
 
 void uart_welcome() {
 	printf("FrontierOS 32 bit ARM\n");

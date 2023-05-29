@@ -1,3 +1,4 @@
+// Frontier app standard
 #ifndef APP_H
 #define APP_H
 #pragma pack(push, 1)

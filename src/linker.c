@@ -69,9 +69,9 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 					sys_report_err("Couldn't find symbol: %s\n", name);
 					return 1;
 				}
-				asm_gen_call(target_loc, call);
+				asm_gen_call(target_loc, call, target_loc);
 			} else {
-				asm_gen_call(target_loc, file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset);
+				asm_gen_call(target_loc, file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset, target_loc);
 			} break;
 		case R_ARM_ABS32:
 			*target_loc += (uintptr_t)file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
@@ -103,8 +103,6 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 			*target_loc &= 0xfff0f000;
 			*target_loc |= ((offset & 0xf000) << 4) | (offset & 0x0fff);
 			} break;
-		default:
-			//printf("Unknown relocation: %d\n", type);
 		}
 	}
 
@@ -117,13 +115,14 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 	struct ElfHeader32 *h = (struct ElfHeader32 *)file;
 
 	if (h->magic != ELF_MAGIC) {
-		sys_report_error("File provided is not ELF.");
+		sys_report_err("File provided is not ELF.");
 		return 1;
 	}
 
 	if (h->bits != ELF_32_BIT || h->machine != ELF_MACHINE_ARM
 			|| h->endian != ELF_LITTLE_ENDIAN) {
-		sys_report_error("File is not compatible.");
+		sys_report_err("File is not compatible.");
+		return 1;
 	}
 
 	struct ElfSectHeader32 *names = (struct ElfSectHeader32 *)
