@@ -1,16 +1,13 @@
-test: os.bin
-	emulator/frontier.o -i os.bin -e
+all: os.bin build-emu
+	emulator/emu.o -i os.bin -e
+
+-include $(TOPL)/config.mak
+ARCH?=emu
+include arch.mak
 
 TOPL=.
--include common.mk
--include $(TOPL)/config.mak
+include common.mk
 
-# Should be specified in config.mak
-ARCH?=emu
-INTERFACE?=headless
-
-ARMCC?=arm-none-eabi
-ARMCFLAGS=-c -mcpu=cortex-a5 -fno-builtin -Idrivers/$(ARCH)/ -I. -Isrc/ -g -Wall -O2
 ARMLDFLAGS=-T Linker.ld
 
 # Add multiple locations to find GCC and libc libs
@@ -20,33 +17,20 @@ ARMLDFLAGS+=-L$(ARMCCLOC)/arm-none-eabi/lib/ -L$(ARMCCLOC)/lib/gcc/arm-none-eabi
 ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/10.3.1/
 ARMLDFLAGS+=-lc -lgcc -lm
 
-# Require some functions to be included from libc
+# Require some functions to be included from libc, for modules
 ARMLDFLAGS+=-u strcasecmp -u strncasecmp -u remove -u rename -u __aeabi_i2f -u __aeabi_fmul \
 -u __aeabi_fdiv -u atof -u strstr -u __aeabi_f2iz -u __errno -u __aeabi_fcmplt
 
-ifeq ($(ARCH),emu)
-EMU_FILES=$(patsubst %, drivers/emu/%, mem.o sys.o bmp.o io.o)
-endif
-
-SRC_FILES=src/boot.o src/bmp.o src/ui.o src/linker.o src/test.o src/ml.o
-SRC_FILES+=src/main.o src/cpu.o src/sym.o src/asm.o src/data.o src/uart.o
+SRC_FILES=src/boot.o src/bmp.o src/ui.o src/linker.o src/test.o src/ml.o src/error.o
+SRC_FILES+=src/main.o src/cpu.o src/sym.o src/asm.o src/data.o src/uart.o src/app.o
 FILES=$(SRC_FILES) $(EMU_FILES)
 
 # Depend on header files
 $(EMU_FILES): $(wildcard drivers/emu/*.h)
 $(SRC_FILES): $(wildcard src/*.h)
 
-# mJS support
-#FILES+=mjs/mjs.o
-#ARMCFLAGS+=-Imjs/ -Imjs/src
-
-ifeq ($(ARCH),emu)
-build-util:
-	cd emulator && $(MAKE)
-
 os.bin: $(FILES) build-util
 	$(ARMCC)-ld $(FILES) $(ARMLDFLAGS) -o os.elf
 	$(ARMCC)-objcopy -O binary os.elf os.bin
-	emulator/frontier.o -i os.elf -o os.bin -s
+	tool/frontier.o -i os.elf -o os.bin -s
 	$(ARMCC)-size --format=berkeley --target=binary os.bin
-endif

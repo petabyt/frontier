@@ -4,9 +4,9 @@
 UNICORN?=/home/$(USER)/Pulled/unicorn
 RAWDRAW?=/home/$(USER)/Pulled/rawdraw
 
-FILES=main.o emulator.o bmp.o
+FILES=main.o pack.o
 
-all: emu.o
+all: frontier.o
 
 $(UNICORN):
 	echo Clone and install unicorn VM in $(UNICORN) or modify UNICORN in config.mak
@@ -15,8 +15,11 @@ $(RAWDRAW):
 
 CFLAGS?=-I$(RAWDRAW) -I../drivers/emu/ -I. -Wall -g
 
-emu.o: $(FILES) Makefile $(UNICORN) $(RAWDRAW)
-	$(CC) $(FILES) -lunicorn -lX11 -lGL -lm -o emu.o
+frontier.o: $(FILES) Makefile $(UNICORN) $(RAWDRAW)
+	$(CC) $(FILES) -lunicorn -lX11 -lGL -lm -o frontier.o
+
+install: frontier.o
+	cp frontier.o /bin/frontier
 
 clean:
 	$(RM) *.o *.elf
