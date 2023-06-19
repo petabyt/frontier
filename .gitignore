@@ -3,3 +3,5 @@
 *.elf
 *.out
 *.wad
+sd/*.elf
+sd/*.app

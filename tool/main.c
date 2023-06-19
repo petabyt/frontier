@@ -1,17 +1,16 @@
 #include <unicorn/unicorn.h>
 
 #include <pack.h>
-#include <emulator.h>
 
 #include "../app/js/frozen.h"
 
 int help() {
 	printf(
 		"Frontier build system utility\n"
-		"-i\tSpecify input file\n"
-		"-o\tSpecify output file\n"
-		"-s\tAppend symbols from single relocatable file\n"
-		"-a\tPrepend file data for app\n"
+		"-i <file>    Specify input file\n"
+		"-o <file>   Specify output file\n"
+		"-s Append symbols from single relocatable file\n"
+		"-a <file> Pack JSON data into app\n"
 	);
 
 	return 0;
@@ -36,6 +35,7 @@ int main(int argc, char *argv[]) {
 			char *content = json_fread(argv[i + 1]);
 			struct AppMetaData amd;
 			gen_app_meta(&amd, content);
+			// TODO: prepend file with metadata
 		} break;
 		case 'h':
 			return help();
@@ -43,5 +43,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	puts("No valid args");
+	help();
 	return 0;
 }

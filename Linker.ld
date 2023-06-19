@@ -2,10 +2,9 @@
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 
-PHDRS
-{
-  code         PT_LOAD;
-  data         PT_LOAD;
+PHDRS {
+	code         PT_LOAD;
+	data         PT_LOAD;
 }
 
 SECTIONS {
@@ -56,7 +55,7 @@ SECTIONS {
 		_data_start = .;
 		*(.data*)
 		_data_end = .;
-	}  : data
+	} : data
 
 	/* The data will be appended */
 	_symbol_table_start = .;
