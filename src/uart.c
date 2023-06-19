@@ -1,14 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-
+#include <stdarg.h>
 #include <sys.h>
 #include <js.h>
 
-void uart_welcome() {
-	printf("FrontierOS 32 bit ARM\n");
-	printf("Written by Daniel C - https://danielc.dev/\n");
-	//cpu_info();
+void sys_debug(const char *format, ...) {
+	char buffer[1024];
+	va_list aptr;
+
+	strcpy(buffer, "[FRNT] ");
+	int len = strlen(buffer);
+
+	va_start(aptr, format);
+	vsnprintf(buffer + len, sizeof(buffer) - len, format, aptr);
+	va_end(aptr);
+
+	uart_str(buffer);
+}
+
+int printf(const char *format, ...) {
+	char buffer[1024];
+	va_list aptr;
+
+	va_start(aptr, format);
+	vsnprintf(buffer, sizeof(buffer), format, aptr);
+	va_end(aptr);
+
+	uart_str(buffer);
+
+	return 0;
+}
+
+int puts(const char *x) {
+	uart_str((char *)x);
+	uart_char('\n');
+	return 0;
 }
 
 int prompt_line() {
@@ -30,12 +57,5 @@ int prompt_line() {
 		}
 
 		curr++;
-	}
-}
-
-void uart_prompt() {
-	while (1) {
-		uart_str("$ ");
-		prompt_line();
 	}
 }

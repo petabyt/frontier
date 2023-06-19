@@ -7,8 +7,10 @@
 extern int sys_mem_in_use;
 extern int sys_mem_available;
 
-// Optional debugging call
+// Dump registers and memory
 void sys_dump();
+
+void sys_debug(const char *format, ...);
 
 void sys_init_bmp();
 void sys_init_mem();

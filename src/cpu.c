@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <sys.h>
+
 #define REGBITS(i, a, b) ((i & ((1u << (a + 1)) - 1)) >> b)
 
 void log_cpu_info(uint32_t i) {
+	sys_debug("Logging CPU info\n");
 	char *impl_str;
 	switch ((char)REGBITS(i, 30, 24)) {
 	case 'A':
@@ -78,11 +81,11 @@ void log_cpu_info(uint32_t i) {
 		break;
 	}
 
-	printf("Impl: %s\n", impl_str);
-	printf("Arch: %s\n", arch_str);
+	sys_debug("Impl: %s\n", impl_str);
+	sys_debug("Arch: %s\n", arch_str);
 
-	printf("Part number: %lX\n", REGBITS(i, 15, 4));
-	printf("Revision: %lX\n", REGBITS(i, 3, 0));
+	sys_debug("Part number: %lX\n", REGBITS(i, 15, 4));
+	sys_debug("Revision: %lX\n", REGBITS(i, 3, 0));
 }
 
 

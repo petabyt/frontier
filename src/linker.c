@@ -65,7 +65,7 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 				void *call = ml_sym(name);
 				if (call == NULL) call = sym(name);
 				if (call == NULL) {
-					printf("ELF: Undefined sym %s\n", name);
+					sys_debug("ELF: Undefined sym %s\n", name);
 					sys_report_err("Couldn't find symbol: %s\n", name);
 					return 1;
 				}
@@ -200,12 +200,12 @@ uintptr_t linker_get_symbol(void *file, struct ElfFileInfo *info, char *name) {
 uint32_t linker_exec(void *file, struct ElfFileInfo *info) {
 	uintptr_t main = linker_get_symbol(file, info, "main");
 	if (main == 0) {
-		printf("main() not found\n");
+		sys_debug("main() not found\n");
 		return 1;
 	}
 
 	typedef int func(void);
 	func* entry = (func*)(file + main);
-	printf("Calling main...\n");
+	sys_debug("Calling main...\n");
 	return entry();
 }

@@ -23,10 +23,7 @@ int main_menu() {
 	return 0;
 }
 
-int entry() {
-	sys_init_syms();
-	sys_init_mem();
-
+int ui_demo_loop() {
 	ui_reset();
 	sys_init_bmp();
 
@@ -39,6 +36,13 @@ int entry() {
 
 		msleep(50);
 	}	
+
+}
+
+int entry() {
+	log_cpu_info();
+	sys_init_syms();
+	sys_init_mem();
 
 	return 0;
 }

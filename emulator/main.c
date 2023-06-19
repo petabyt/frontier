@@ -1,6 +1,5 @@
 #include <unicorn/unicorn.h>
 
-#include <pack.h>
 #include <emulator.h>
 
 int help() {
@@ -14,8 +13,7 @@ int help() {
 }
 
 int main(int argc, char *argv[]) {
-	char *input = "os.elf";
-	char *output = "os.bin";
+	char *input = "os.bin";
 	for (int i = 0; i < argc; i++) {
 		if (argv[i][0] != '-') continue;
 		switch (argv[i][1]) {

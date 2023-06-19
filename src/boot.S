@@ -7,7 +7,7 @@ _start:
 // Need to fix up GOT first. It has addresses starting from the
 // beginning of the file, not PC relative. This code fixes it.
 ldr r1, =_got_start
-ldr r2, =_got_end	
+ldr r2, =_got_end
 
 sub r2, r1 // subtract, r2 == len
 

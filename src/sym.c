@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys.h>
 
 extern uint32_t _symbol_table_start;
 
@@ -63,6 +64,10 @@ int sys_init_syms() {
 	global_syms[0].table = ((uintptr_t)(&_symbol_table_start));
 	global_syms[0].length = 0;
 	global_syms_length = 1;
+
+	sys_debug("Initialized internal symbols\n");
+	sys_debug("Table length: %d\n", table_size(0));
+	
 	return 0;
 }
 

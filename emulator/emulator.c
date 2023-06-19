@@ -57,6 +57,7 @@ void barf(uc_engine *uc) {
 	}
 
 	if (!already_dumped) {
+		puts("Dumping..");
 		void *buf = malloc(E_RAM);
 		uc_mem_read(uc, E_ADDRESS, buf, E_RAM);
 		FILE *f = fopen("dump", "w");
@@ -221,8 +222,11 @@ int emulator(char *filename) {
 	fseek(f, 0, SEEK_SET);
 	char *buffer = malloc(length);
 	int rc = fread(buffer, length, 1, f);
-	if (rc == 0) exit(1);
+	if (rc == 0) {
+		return 1;
+	}
 	fclose(f);
+
 	err = uc_mem_write(uc, E_ADDRESS, buffer, length);
 	free(buffer);
 	if (err != UC_ERR_OK) {

@@ -58,7 +58,7 @@ void *alloc_file(char *filename) {
 
 	size_t x = fread(buffer, 1, 64, f);
 
-	// ...
+	// TODO: DO header figuring here...
 	
 	x += fread(buffer + 64, 1, s.st_size - 64, f);
 	if (x != s.st_size) {

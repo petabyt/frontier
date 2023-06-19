@@ -10,7 +10,9 @@ void syscall(int v);
 
 int sys_mem_in_use = 0;
 
-void sys_key_status() {}
+void sys_key_status() {
+	
+}
 
 int sys_check_key(int key) {
 	if (key == SYS_BUTTON_QUIT) {
@@ -78,25 +80,6 @@ void uart_str(char *string) {
 		uart_char(*string);
 		string++;
 	}
-}
-
-int printf(const char *format, ...) {
-	char buffer[1024];
-	va_list aptr;
-
-	va_start(aptr, format);
-	vsnprintf(buffer, sizeof(buffer), format, aptr);
-	va_end(aptr);
-
-	uart_str(buffer);
-
-	return 0;
-}
-
-int puts(const char *x) {
-	uart_str((char *)x);
-	uart_char('\n');
-	return 0;
 }
 
 int sys_getchar() {
