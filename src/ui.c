@@ -6,34 +6,40 @@
 #include <ui.h>
 
 /*
+Primitive layout UI engine
+- x, y == 0 is start when available
+- width, height == 0 is fill avilable space
+- Allows 5 nested containers
+- State is similar to Nuklear
 
-x, y == 0 is start when available
-width, height == 0 is fill avilable space
+ui_frame(main_menu);
 
-x, y between 0 and 4 is start at quadrant
+int main_menu() {
+	if (ui_button("Hello, World")) {
+		// Button is clicked
+	}
 
-width, height between 0 and 4 is end at quadrant
-
-draw selectors, labels, and buttons, after the last container
-
-ui_draw_container(0, 0, 0, 100, color);
-ui_draw_selector("Hello, World", color);
+	return 0;
+}
 */
 
-uint8_t select_x = 0;
-uint8_t select_y = 0;
-uint8_t done = 0;
+// 
+#define MAX_CONTAINER 5
 
 static struct UiDimensions {
-	int x[10];
-	int y[10];
-	int i[10];
+	int x[MAX_CONTAINER]; // last x
+	int y[MAX_CONTAINER]; // last y
+	int i[MAX_CONTAINER]; // padding
 	int cur;
 
 	uint8_t index_x;
 	uint8_t index_y;
 	uint8_t interacted;
 }ui;
+
+uint8_t select_x = 0;
+uint8_t select_y = 0;
+uint8_t done = 0;
 
 int ui_reset() {
 	memset(&ui, 0, sizeof(ui));

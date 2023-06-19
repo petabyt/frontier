@@ -14,4 +14,4 @@ all_js_size:
 .global settings_bmp
 .align 4
 settings_bmp:
-.incbin "fujihack.bmp"
+.incbin "settings.bmp"
