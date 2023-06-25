@@ -1,7 +1,7 @@
 NAME=js
 all: $(NAME).elf
 TOPL?=../../
-include $(TOPL)/common.mk
+include $(TOPL)/common.mak
 
 FILES=mjs.o
 

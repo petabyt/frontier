@@ -1,4 +1,13 @@
 # Common portable makefile things
+
+ifndef ARCH_MCPU
+ARCH_MCPU=cortex-a5
+endif
+
+ifndef ARCH_RUST_TARGET
+ARCH_RUST_TARGET=armv7-unknown-linux-gnueabi
+endif
+
 ARMCC?=arm-none-eabi
 RUSTC?=rustc
 ARMCFLAGS?=-c -mcpu=$(ARCH_MCPU) -Idrivers/$(ARCH)/ -I. -Isrc/ -g -Wall -O2

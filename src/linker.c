@@ -167,7 +167,8 @@ uintptr_t linker_scan_symbols(void *file, struct ElfFileInfo *info) {
 			if (!strcmp(curr, "main") || !strcmp(curr, "panic")) continue;
 			if (sym->shndx != 0 && sym->size != 0) {
 				struct ElfSectHeader32 *l = get_elf_head(file, sym->shndx);
-				sym_new(curr, l->offset + sym->value);
+				sys_debug("Adding new symbol %s\n", curr);
+				sym_new(curr, file + l->offset + sym->value);
 			}
 		}
 	}

@@ -7,53 +7,23 @@
 #include <app.h>
 #include <linker.h>
 
-int parse_app_metadata(FILE *f) {
-	return 0;
-}
-
-int load_app_elf(FILE *f) {
-	//struct ElfFileInfo i;
-	return 0;
-}
-
-int load_app(char *filename) {
+void *alloc_elf_file(char *filename, int *length) {
 	FILE *f = fopen(filename, "rb");
 	if (f == NULL) {
-		return -1;
+		sys_debug("Failed to open file\n");
+		return NULL;
 	}
 
-	char tmp[128];
-	fread(tmp, 1, sizeof(tmp), f);
-
-	struct AppMetaData *md = (struct AppMetaData *)tmp;
-	if (md->magic1 == 'F' && md->magic2 == 'R') {
-		return parse_app_metadata(f);
-	}
-
-	uint32_t *chk32 = (uint32_t *)tmp;
-	if (chk32[0] == ELF_MAGIC) {
-		return load_app_elf(f);
-	}
-
-	return -2;
-}
-
-void *alloc_file(char *filename) {
 	struct stat s;
 	stat(filename, &s);
+	*length = s.st_size;
 
-	printf("File size: %lu\n", s.st_size);
+	sys_debug("File size: %lu\n", s.st_size);
 
 	void *buffer = malloc(s.st_size);
 	if (buffer == NULL) {
-		printf("Failed to allocate ELF buffer\n");
-		return 0;
-	}
-
-	FILE *f = fopen(filename, "rb");
-	if (f == NULL) {
-		printf("Failed to open file\n");
-		return 0;
+		sys_debug("Failed to allocate ELF buffer\n");
+		return NULL;
 	}
 
 	size_t x = fread(buffer, 1, 64, f);
@@ -62,7 +32,7 @@ void *alloc_file(char *filename) {
 	
 	x += fread(buffer + 64, 1, s.st_size - 64, f);
 	if (x != s.st_size) {
-		printf("Coundn't read file\n");
+		sys_debug("Coundn't read file\n");
 		return 0;
 	}
 
@@ -71,12 +41,39 @@ void *alloc_file(char *filename) {
 	return buffer;
 }
 
-int sys_load_app(char *filename) {
-	void *buffer = alloc_file(filename);
+// Quickly read a few bytes of an app, and get icon, name, any info, etc.
+int app_get_info(char *filename, struct AppMetaData *data) {
+	FILE *f = fopen(filename, "rb");
+	if (f == NULL) {
+		return -1;
+	}
 
-	struct stat s;
-	stat(filename, &s);
-	sys_segment(buffer, s.st_size);
+	char tmp[128];
+	fread(tmp, 1, sizeof(tmp), f);
+
+	fclose(f);
+
+	struct AppMetaData *md = (struct AppMetaData *)tmp;
+	if (md->magic1 == 'F' && md->magic2 == 'R') {
+		//return parse_app_metadata(f);
+	}
+
+	uint32_t *chk32 = (uint32_t *)tmp;
+	if (chk32[0] == ELF_MAGIC) {
+		//return load_app_elf(f);
+	}
+
+	return -2;
+}
+
+int sys_load_app(char *filename) {
+	int length = 0;
+	void *buffer = alloc_elf_file(filename, &length);
+	if (buffer == NULL) {
+		return 1;
+	}
+
+	sys_segment(buffer, length);
 
 	if (buffer == NULL) return 1;
 
@@ -91,7 +88,7 @@ int sys_load_app(char *filename) {
 	linker_scan_symbols(buffer, &i);
 
 	if (!ret) {
-		printf("return: %lX\n", linker_exec(buffer, &i));
+		sys_debug("Returned: %lX\n", linker_exec(buffer, &i));
 	}
 
 	return 0;

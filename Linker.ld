@@ -7,6 +7,8 @@ PHDRS {
 	data         PT_LOAD;
 }
 
+INCLUDE extern.ld
+
 SECTIONS {
 	. = 4096;
 

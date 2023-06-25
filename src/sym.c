@@ -8,6 +8,7 @@ extern uint32_t _symbol_table_start;
 
 #pragma pack(push, 1)
 
+// A variable length structure containing information for a single symbol
 struct TblEntry {
 	uint32_t addr;
 	uint16_t length;
@@ -17,18 +18,21 @@ struct TblEntry {
 };
 
 #define DEFAULT_TABLE_SIZE 10000
+#define MAX_TABLES 10
 
-// A global array of symbol tables - new tables are added
-// and allocated on the fly
-int global_syms_length = 0;
+// Each table points to raw memory containing a series of TblEntry structures. Each TblEntry is variable length.
+// For each table, the 'length' attribute is for how many bytes the buffer is. This is done primarily because it's
+// how the symbols for the OS image is stored (as a binary file appended to the OS image)
+int current_table_index = 0;
 struct GlobalSyms {
 	uintptr_t table;
 	int length;
-}global_syms[10];
+}global_syms[MAX_TABLES];
 
 #pragma pack(pop)
 
-int table_size(int i) {
+// Gets the current length of all the symbols added to a specific table
+int get_table_length(int i) {
 	void *tmp = (void *)(global_syms[i].table);
 
 	int of = 0;
@@ -39,20 +43,32 @@ int table_size(int i) {
 	}
 }
 
-int sym_new(char *name, uint32_t value) {
-	int length = table_size(global_syms_length - 1);
+int allocate_new_table() {
+	current_table_index++;
+	global_syms[current_table_index].table = (uintptr_t)malloc(DEFAULT_TABLE_SIZE);
+	global_syms[current_table_index].length = DEFAULT_TABLE_SIZE;
+	memset((void *)global_syms[current_table_index].table, 0, DEFAULT_TABLE_SIZE);
 
-	// Allocate a new table if necessary
-	int predicted_size = length - (int)strlen(name) + (int)sizeof(struct TblEntry);
-	if (predicted_size >= length) {
-		global_syms[global_syms_length].table = (uintptr_t)malloc(DEFAULT_TABLE_SIZE);
-		global_syms[global_syms_length].length = DEFAULT_TABLE_SIZE;
-		memset((void *)global_syms[global_syms_length].table, 0, DEFAULT_TABLE_SIZE);
-		global_syms_length++;
+	if (global_syms[current_table_index].table == NULL) {
+		sys_debug("SYM: Fatal - out of memory\n");
+		while (1);
 	}
 
-	length = table_size(global_syms_length - 1);
-	struct TblEntry *x = (struct TblEntry *)(global_syms[global_syms_length - 1].table + length);
+	return 0;
+}
+
+int sym_new(char *name, uint32_t value) {
+	int length = get_table_length(current_table_index);
+
+	// Allocate a new table if necessary
+	int predicted_size = length + (int)strlen(name) + (int)sizeof(struct TblEntry);
+
+	if (predicted_size >= global_syms[current_table_index].length || global_syms[current_table_index].length == 0) {
+		allocate_new_table();
+	}
+
+	length = get_table_length(current_table_index);
+	struct TblEntry *x = (struct TblEntry *)(global_syms[current_table_index].table + length);
 	x->addr = value;
 	x->length = strlen(name);
 	memcpy(x->string, name, x->length);
@@ -63,39 +79,26 @@ int sym_new(char *name, uint32_t value) {
 int sys_init_syms() {
 	global_syms[0].table = ((uintptr_t)(&_symbol_table_start));
 	global_syms[0].length = 0;
-	global_syms_length = 1;
+	allocate_new_table();
 
 	sys_debug("Initialized internal symbols\n");
-	sys_debug("Table length: %d\n", table_size(0));
+	sys_debug("Table length: %d\n", get_table_length(0));
 	
 	return 0;
 }
 
 void *sym(const char *name) {
-	for (int i = 0; i < global_syms_length; i++) {
+	for (int i = 0; i < current_table_index + 1; i++) {
 		int of = 0;
 		uintptr_t table = global_syms[i].table;
-		if (global_syms[i].length == 0) {
-			// Read until a blank entry
-			while (1) {
-				struct TblEntry *x = (struct TblEntry *)(table + of);
-				if (x->length == 0) return NULL;
-				if (!strncmp(name, x->string, x->length)) {
-					return (void *)((uintptr_t)x->addr);
-				} else {
-					of += 8 + x->length;
-				}
+		while (1) {
+			struct TblEntry *x = (struct TblEntry *)(table + of);
+			if (x->addr == 0) break;
+			if (!strncmp(name, x->string, x->length)) {
+				return (void *)((uintptr_t)x->addr);
+			} else {
+				of += 8 + x->length;
 			}
-		} else {
-			for (int i = 0; i < global_syms[i].length; i++) {
-				struct TblEntry *x = (struct TblEntry *)(table + of);
-				if (x->length == 0) return NULL;
-				if (!strncmp(name, x->string, x->length)) {
-					return (void *)((uintptr_t)x->addr);
-				} else {
-					of += 8 + x->length;
-				}
-			}			
 		}
 	}
 
