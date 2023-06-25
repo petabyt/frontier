@@ -1,5 +1,7 @@
 # Frontier
-Frontier is a 'utility OS' that allows existing technology to be made more useful.
+Frontier is a bare metal ARM 'utility OS' designed to run on consumer hardware.
+
+![basic demo](https://eggnog.danielc.dev/f/74-finmvdwilqibugm0au5wi02i9g6427.png)
 
 It consists of:
 - Basic monolithic kernel with module support
@@ -12,7 +14,7 @@ It consists of:
 
 # Design
 - Priority support for 32 bit ARM v6. 64 bit and Thumb is secondary, other archs will not be considered.
-- Aiming for 100k of 32 bit ARM code
+- Aiming for a 100k standalone ARM32 image
 - POSIX interface when possible, other graphics and IO functions are very basic
 - Apps are standard ELF objects, with an optional header including metadata (name, url, icon)
 - Magic Lantern modules can also be loaded, with a basic compatibility layer
@@ -27,10 +29,11 @@ It consists of:
 - [x] Basic emulator, kernel, hello world tests
 - [x] Link and test libc, libm, libgcc
 - [x] Linker implemented
+- [x] Basic UI Library
 - [ ] Multithreading in emulator
+- [ ] Port to generic qemu
 - [ ] Basic shell for debugging
 - [ ] Port for thumb bytecode (test on micro:bit)
-- [ ] JSON based UI Library
 - [x] Button & mouse IO
 
 # Project structure
