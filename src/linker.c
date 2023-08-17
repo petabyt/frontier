@@ -1,4 +1,8 @@
+// Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
 // Frontier 32 bit ELF Linker
+// This will perform a basic linking of a standard ELF file, for 32-bit ARM assembly.
+// Most relocation types are supported, although there may be edge cases where this linker
+// will fail.
 
 /*
 TODO: This doesn't seem to work with .LANCHOR
@@ -72,7 +76,6 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 				asm_gen_call(target_loc, call, target_loc);
 			} else {
 				asm_gen_call(target_loc, file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset, target_loc);
-				sys_report_err("Done BL: %X %X", ((uint32_t *)(file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset))[0], target_loc[0]);
 			} break;
 		case R_ARM_ABS32:
 			*target_loc += (uintptr_t)file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
@@ -86,6 +89,8 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 			// Allocate common undefined (like BSS)
 			if (syms[index].shndx >= SHN_LOPROC) {
 				// TODO: Fix this hack
+				// (I completely forgot what this was about, something about external data (that didn't exist) being referenced?
+				// Or was it a hack for what probably is a BSS section?)
 				if (syms[index].shndx == SHN_COMMON && syms[index].value < 100) {
 					syms[index].value = (uint32_t)malloc(syms[index].size);
 					memset((void *)syms[index].value, 0, syms[index].size);
@@ -101,6 +106,7 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 			}
 
 			// TODO: instruction to generate movw/movt
+			// Although this seems to work OK
 			*target_loc &= 0xfff0f000;
 			*target_loc |= ((offset & 0xf000) << 4) | (offset & 0x0fff);
 			} break;
@@ -155,6 +161,7 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 	return 0;
 }
 
+// Scan symbols and add them to the global symbol manager (sym.c)
 uintptr_t linker_scan_symbols(void *file, struct ElfFileInfo *info) {
 	struct ElfSectHeader32 *symtab = (struct ElfSectHeader32 *)(file + info->symtab_of);
 	struct ElfSectHeader32 *strtab = (struct ElfSectHeader32 *)(file + info->strtab_of);
@@ -199,6 +206,8 @@ uintptr_t linker_get_symbol(void *file, struct ElfFileInfo *info, char *name) {
 	return 0;
 }
 
+// Push all registers and call a void(void) function - mostly for firmware hacks where
+// stack manipulation and smashing could happen. Might be a good idea to do this to BL calls to.
 int safe_func_exec(void *addr) {
 	asm volatile(
 		"push {r0-r12}"

@@ -6,7 +6,7 @@
 #include <pack.h>
 
 // Include JSON parser
-#include "../app/js/frozen.c"
+#include "../lib/frozen.c"
 
 char *readelf = "arm-none-eabi-readelf";
 

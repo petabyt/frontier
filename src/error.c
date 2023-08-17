@@ -1,4 +1,5 @@
-// perror equivelants
+// perror equivelants - or maybe similar to what win32 has
+// Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
 #include <stdio.h>
 #include <stdarg.h>
 

@@ -1,3 +1,5 @@
+// Assembly generation functions - will be included in custom assembler
+// Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
 #include <stdint.h>
 
 void asm_gen_branch(void *base, void *to, void *buffer) {

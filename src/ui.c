@@ -1,20 +1,16 @@
-#include <stdint.h>
-#include <string.h>
-
-#include <bmp.h>
-#include <sys.h>
-#include <ui.h>
-
+// Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
 /*
 Primitive layout UI engine
-- x, y == 0 is start when available
+- Inspired by nuklear
+- Render is ideally triggered by keypress
+- x, y == 0 is start of layout (when available)
 - width, height == 0 is fill avilable space
 - Allows 5 nested containers
-- State is similar to Nuklear
 
 ui_frame(main_menu);
 
 int main_menu() {
+	// Called every keypress/UI event
 	if (ui_button("Hello, World")) {
 		// Button is clicked
 	}
@@ -22,6 +18,12 @@ int main_menu() {
 	return 0;
 }
 */
+#include <stdint.h>
+#include <string.h>
+
+#include <bmp.h>
+#include <sys.h>
+#include <ui.h>
 
 // 
 #define MAX_CONTAINER 5

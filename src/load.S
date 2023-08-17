@@ -1,4 +1,6 @@
 // Generic ARM32 starter script
+.extern _start
+
 .global sys_entry
 sys_entry:
 
@@ -18,12 +20,12 @@ beq skip
 
 got_top:
 	sub r2, #0x4
-	adr r3, _start // get base addr
+	ldr r3, =_start_dat // get base addr
 	add r3, r1 // add _got_end
 	add r3, r2 // add curr len
 	ldr r4, [r3] // get value
 
-	adr r5, _start // get base addr
+	ldr r5, =_start_dat // get base addr
 	add r4, r5 // get new addr
 	str r4, [r3] // store new value
 cmp r2, #0x0
@@ -44,3 +46,6 @@ adr lr, after
 b entry
 after:
 bl exit
+b .
+
+_start_dat: .int _start

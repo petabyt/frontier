@@ -1,4 +1,6 @@
-// Global runtime symbol mananger
+// Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
+// Global runtime symbol mananger. Next time I should use a linked list
+// rather than an array of variable length buffers.
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>

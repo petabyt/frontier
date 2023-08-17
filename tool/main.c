@@ -2,7 +2,7 @@
 
 #include <pack.h>
 
-#include "../app/js/frozen.h"
+#include "../lib/frozen.h"
 
 int help() {
 	printf(

@@ -1,3 +1,5 @@
+// Basic code to detect and load apps
+// Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>

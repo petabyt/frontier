@@ -1,3 +1,5 @@
+// Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
+// Completely unfinished
 #include <stdint.h>
 
 enum Patches {

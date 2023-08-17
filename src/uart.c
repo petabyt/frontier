@@ -1,3 +1,4 @@
+// Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

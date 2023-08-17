@@ -1,3 +1,5 @@
+// Use mrc instruction to extract information from register
+// Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
