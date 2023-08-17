@@ -1,12 +1,10 @@
 # Common portable makefile things
 
-ifndef ARCH_MCPU
-ARCH_MCPU=cortex-a5
-endif
+ARCH_MCPU?=cortex-a5
 
-ifndef ARCH_RUST_TARGET
-ARCH_RUST_TARGET=armv7-unknown-linux-gnueabi
-endif
+ARCH_RUST_TARGET?=armv7-unknown-linux-gnueabi
+
+ARCH_LD_LIBS?=-lc -lgcc -lm
 
 ARMCC?=arm-none-eabi
 RUSTC?=rustc

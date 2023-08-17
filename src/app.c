@@ -15,7 +15,10 @@ void *alloc_elf_file(char *filename, int *length) {
 	}
 
 	struct stat s;
-	stat(filename, &s);
+	if (stat(filename, &s)) {
+		sys_debug("stat() err\n");
+		return NULL;
+	}
 	*length = s.st_size;
 
 	sys_debug("File size: %lu\n", s.st_size);
@@ -70,6 +73,7 @@ int sys_load_app(char *filename) {
 	int length = 0;
 	void *buffer = alloc_elf_file(filename, &length);
 	if (buffer == NULL) {
+		sys_report_err("File allocation error");
 		return 1;
 	}
 

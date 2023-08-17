@@ -10,8 +10,3 @@ all_js:
 .align 4
 all_js_size:
 .int all_js_size - all_js
-
-.global settings_bmp
-.align 4
-settings_bmp:
-.incbin "settings.bmp"

@@ -1,7 +1,7 @@
 // Frontier 32 bit ELF Linker
 
 /*
-TODO: This doesn't seem to work with .LANCHOR, need to do more research
+TODO: This doesn't seem to work with .LANCHOR
 */
 
 #include <stdio.h>
@@ -72,6 +72,7 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 				asm_gen_call(target_loc, call, target_loc);
 			} else {
 				asm_gen_call(target_loc, file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset, target_loc);
+				sys_report_err("Done BL: %X %X", ((uint32_t *)(file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset))[0], target_loc[0]);
 			} break;
 		case R_ARM_ABS32:
 			*target_loc += (uintptr_t)file + syms[index].value + get_elf_head(file, syms[index].shndx)->offset;
@@ -198,6 +199,22 @@ uintptr_t linker_get_symbol(void *file, struct ElfFileInfo *info, char *name) {
 	return 0;
 }
 
+int safe_func_exec(void *addr) {
+	asm volatile(
+		"push {r0-r12}"
+	);
+
+	typedef int func(void);
+	func* entry = (func*)(addr);
+	int rc = entry();	
+
+	asm volatile(
+		"pop {r0-r12}"
+	);
+
+	return rc;
+}
+
 uint32_t linker_exec(void *file, struct ElfFileInfo *info) {
 	uintptr_t main = linker_get_symbol(file, info, "main");
 	if (main == 0) {
@@ -205,8 +222,8 @@ uint32_t linker_exec(void *file, struct ElfFileInfo *info) {
 		return 1;
 	}
 
-	typedef int func(void);
-	func* entry = (func*)(file + main);
 	sys_debug("Calling main...\n");
-	return entry();
+	int rc = safe_func_exec(file + main);
+	sys_report_err("main() return code: %X", rc);
+	return rc;
 }

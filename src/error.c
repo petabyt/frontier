@@ -14,3 +14,14 @@ void sys_report_err(const char* format, ...) {
 char *sys_get_error() {
 	return error_buffer;
 }
+
+int fault_screen() {
+	bmp_clear(0x33bb);
+
+	bmp_string(10, 10, "A problem has been detected and FrontierOS has been", 0xffffff);
+	bmp_string(10, 30, "shut down to prevent damage to your device.", 0xffffff);
+
+	while (1) {}
+
+	return 0;
+}

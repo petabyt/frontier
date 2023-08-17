@@ -1,5 +1,6 @@
-.global _start
-_start:
+// Generic ARM32 starter script
+.global sys_entry
+sys_entry:
 
 .extern _got_start
 .extern _got_end

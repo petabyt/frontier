@@ -11,7 +11,7 @@ enum AppInfoType {
 };
 
 struct AppInfo {
-	enum AppInfoType;
+	//enum AppInfoType;
 };
 
 // Frontier official app header structure
