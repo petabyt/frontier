@@ -1,11 +1,11 @@
 # Frontier
-Frontier is a bare metal ARM 'utility OS' designed to run on consumer hardware.
+Frontier is a bare metal ARM OS designed to run on consumer hardware.
 
-![basic demo](https://eggnog.danielc.dev/f/74-finmvdwilqibugm0au5wi02i9g6427.png)
+![PoC](https://eggnog.danielc.dev/f/74-finmvdwilqibugm0au5wi02i9g6427.png)
 
 It consists of:
 - Basic monolithic kernel with module support
-- 32 Bit ELF Linker for modules and apps
+- 32 Bit ELF loader for modules and apps
 - Embedded ARM Assembler and memory patch manager
 - Javscript Engine (mJS)
 - Basic JSON-based UI Library (native rendering)
@@ -28,7 +28,7 @@ It consists of:
 # Roadmap
 - [x] Basic emulator, kernel, hello world tests
 - [x] Link and test libc, libm, libgcc
-- [x] Linker implemented
+- [x] ELF Loader implemented
 - [x] Basic UI Library
 - [ ] Multithreading in emulator
 - [ ] Port to generic qemu
@@ -40,6 +40,6 @@ It consists of:
 ### drivers/emu
 Drivers (Kernel) for the emulator
 ### src/
-Source code for the OS - contains linker, UI renderer, etc
+Source code for the OS - contains loader, UI renderer, etc
 ### apps/
 Contains all the basic test apps - and the mJS engine

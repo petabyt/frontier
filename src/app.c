@@ -7,7 +7,7 @@
 #include <sys.h>
 #include <elf.h>
 #include <app.h>
-#include <linker.h>
+#include <loader.h>
 
 void *alloc_elf_file(char *filename, int *length) {
 	FILE *f = fopen(filename, "rb");
@@ -85,16 +85,16 @@ int sys_load_app(char *filename) {
 
 	struct ElfFileInfo i;
 
-	int ret = linker_init_elf(buffer, &i);
+	int ret = loader_init_elf(buffer, &i);
 	if (ret) {
 		printf(sys_get_error());
 		return 1;
 	}
 
-	linker_scan_symbols(buffer, &i);
+	loader_scan_symbols(buffer, &i);
 
 	if (!ret) {
-		sys_debug("Returned: %lX\n", linker_exec(buffer, &i));
+		sys_debug("Returned: %lX\n", loader_exec(buffer, &i));
 	}
 
 	return 0;

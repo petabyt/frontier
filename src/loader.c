@@ -1,7 +1,7 @@
 // Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
-// Frontier 32 bit ELF Linker
-// This will perform a basic linking of a standard ELF file, for 32-bit ARM assembly.
-// Most relocation types are supported, although there may be edge cases where this linker
+// Frontier 32 bit ELF Loader
+// This will perform a basic parsing of a standard ELF file, for 32-bit ARM assembly.
+// Most relocation types are supported, although there may be edge cases where this loader
 // will fail.
 
 /*
@@ -15,7 +15,7 @@ TODO: This doesn't seem to work with .LANCHOR
 #include <sys.h>
 #include <elf.h>
 #include <asm.h>
-#include <linker.h>
+#include <loader.h>
 
 struct ElfSectHeader32 *get_elf_head(void *file, uint32_t i) {
 	struct ElfHeader32 *h = (struct ElfHeader32 *)file;
@@ -30,7 +30,7 @@ char *elf_head_name(void *file, uint32_t i) {
 }
 
 // Link all symbols in a section
-int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32 *s) {
+int loader_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32 *s) {
 	// To relocation list (.rel.text)
 	struct ElfSectHeader32 *l = get_elf_head(file, s->link);
 
@@ -116,7 +116,7 @@ int linker_relocate(void *file, struct ElfFileInfo *info, struct ElfSectHeader32
 	return 0;
 }
 
-int linker_init_elf(void *file, struct ElfFileInfo *info) {
+int loader_init_elf(void *file, struct ElfFileInfo *info) {
 	memset(info, 0, sizeof(struct ElfFileInfo));
 
 	struct ElfHeader32 *h = (struct ElfHeader32 *)file;
@@ -144,7 +144,7 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 		if (s->type == SHT_PROGBITS) {
 			info->max_exec_size += s->size;
 		} else if (s->type == SHT_REL) {
-			if (linker_relocate(file, info, s)) {
+			if (loader_relocate(file, info, s)) {
 				return 1;
 			}
 		}
@@ -162,7 +162,7 @@ int linker_init_elf(void *file, struct ElfFileInfo *info) {
 }
 
 // Scan symbols and add them to the global symbol manager (sym.c)
-uintptr_t linker_scan_symbols(void *file, struct ElfFileInfo *info) {
+uintptr_t loader_scan_symbols(void *file, struct ElfFileInfo *info) {
 	struct ElfSectHeader32 *symtab = (struct ElfSectHeader32 *)(file + info->symtab_of);
 	struct ElfSectHeader32 *strtab = (struct ElfSectHeader32 *)(file + info->strtab_of);
 
@@ -184,7 +184,7 @@ uintptr_t linker_scan_symbols(void *file, struct ElfFileInfo *info) {
 	return 0;
 }
 
-uintptr_t linker_get_symbol(void *file, struct ElfFileInfo *info, char *name) {
+uintptr_t loader_get_symbol(void *file, struct ElfFileInfo *info, char *name) {
 	struct ElfSectHeader32 *symtab = (struct ElfSectHeader32 *)(file + info->symtab_of);
 	struct ElfSectHeader32 *strtab = (struct ElfSectHeader32 *)(file + info->strtab_of);
 
@@ -224,8 +224,8 @@ int safe_func_exec(void *addr) {
 	return rc;
 }
 
-uint32_t linker_exec(void *file, struct ElfFileInfo *info) {
-	uintptr_t main = linker_get_symbol(file, info, "main");
+uint32_t loader_exec(void *file, struct ElfFileInfo *info) {
+	uintptr_t main = loader_get_symbol(file, info, "main");
 	if (main == 0) {
 		sys_debug("main() not found\n");
 		return 1;

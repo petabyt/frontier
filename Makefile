@@ -17,7 +17,7 @@ ARMLDFLAGS+=-L$(ARMCCLOC)/arm-none-eabi/lib/ -L$(ARMCCLOC)/lib/gcc/arm-none-eabi
 ARMLDFLAGS+=-L/usr/lib/arm-none-eabi/newlib/ -L/usr/lib/gcc/arm-none-eabi/10.3.1/
 ARMLDFLAGS+=$(ARCH_LD_LIBS)
 
-SRC_FILES=load.o bmp.o ui.o linker.o test.o ml.o error.o main.o cpu.o sym.o asm.o data.o uart.o app.o
+SRC_FILES=load.o bmp.o ui.o loader.o test.o ml.o error.o main.o cpu.o sym.o asm.o data.o uart.o app.o
 FILES?=$(ARCH_BOOT_FILE) $(addprefix src/,$(SRC_FILES)) $(ARCH_FILES)
 
 # Depend on header files
