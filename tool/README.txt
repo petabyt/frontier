@@ -1,1 +1,1 @@
-Frontier OS built utility used to assemble apps and boot images
+Frontier build system, used to build images (with symtable) and emulate images
