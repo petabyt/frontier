@@ -1,3 +1,4 @@
+// Main start file
 // Copyright (C) 2022-2023 Frontier by Daniel C - Apache License
 #include <string.h>
 #include <stdint.h>
@@ -31,8 +32,7 @@ int ui_demo_loop() {
 		}
 
 		msleep(50);
-	}	
-
+	}
 }
 
 int entry() {

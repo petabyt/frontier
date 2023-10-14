@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 void asm_gen_branch(void *base, void *to, void *buffer) {
-	((uint32_t*)buffer)[0] = ((to - base - 8) >> 2) & 0x00ffffff;
+	((uint32_t*)buffer)[0] = ((to - base - 8) >> 2) & 0x00ffffff; // 16mb limit
 	((uint8_t*)buffer)[3] = 0xea;
 }
 

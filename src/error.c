@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+// TODO: This causes race condition
 static char error_buffer[128];
 
 void sys_report_err(const char* format, ...) {

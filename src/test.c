@@ -3,7 +3,7 @@
 #include <math.h>
 
 // Basic self testing
-// - make sure malloc() creats valid addresses
+// - make sure malloc() creates valid addresses
 // - Make sure free() works
 
 int sys_fast_self_test() {

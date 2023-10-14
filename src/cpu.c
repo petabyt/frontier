@@ -90,7 +90,6 @@ void log_cpu_info(uint32_t i) {
 	sys_debug("Revision: %lX\n", REGBITS(i, 3, 0));
 }
 
-
 uint32_t asm_get_cpuinfo(void) {
 	uint32_t i;
 	__asm__("mrc p15, 0x0, %0, c0, c0, 0x0\n" : "=r" (i));
